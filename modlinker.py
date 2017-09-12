@@ -18,7 +18,7 @@ query_url = 'http://steamcommunity.com/workshop/browse/?appid=294100&searchtext=
 regexFlags = re.IGNORECASE + re.MULTILINE
 MAX_RESULTS = 10
 MAX_LENGTH = 9900 # real max is 10000, leave a bit of wiggle room
-REDDITS = [ "bottesting", "testingground4bots" ]
+REDDITS = "bottesting+testingground4bots"
 
 # secrets, (mostly) defined in environment
 config = {
@@ -204,7 +204,7 @@ def handle_ratelimit(func, *args, **kwargs):
 
 # start the bot
 reddit = praw.Reddit( **config )
-stream = reddit.subreddits(REDDITS).stream
+stream = reddit.subreddit(REDDITS).stream
 commentsDone = getCommentsDone();
 
 for comment in stream.comments():
