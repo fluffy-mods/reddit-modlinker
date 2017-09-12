@@ -28,6 +28,8 @@ config = {
     "user_agent": 'python:rimworld-modlinker:v1.0 (by /u/FluffierThanThou)'
 }
 
+logger.info( config )
+
 # footer text
 footer = "\n\n*****\n^(I'm a bot | ) [^(read more about me here)](https://github.com/FluffierThanThou/reddit-modlinker) ^(| I was made by /u/FluffierThanThou)"
 
@@ -204,7 +206,7 @@ def handle_ratelimit(func, *args, **kwargs):
 # start the bot
 reddit = praw.Reddit( **config )
 
-subreddit = reddit.subreddit('RimWorld')
+subreddit = reddit.subreddit('bottesting')
 
 commentsDone = getCommentsDone();
 
