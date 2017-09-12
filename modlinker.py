@@ -23,7 +23,7 @@ MAX_LENGTH = 9900 # real max is 10000, leave a bit of wiggle room
 config = {
     "username": os.environ['REDDIT_USER'],
     "password": os.environ['REDDIT_PASSWORD'],
-    "client_id": os.environ['REDDIT_CLIENT_KEY'],
+    "client_id": os.environ['REDDIT_CLIENT_ID'],
     "client_secret": os.environ['REDDIT_CLIENT_SECRET'],
     "user_agent": 'python:rimworld-modlinker:v1.0 (by /u/FluffierThanThou)'
 }
