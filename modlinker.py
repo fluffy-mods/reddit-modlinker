@@ -268,7 +268,7 @@ for comment in subreddit.stream.comments():
             parts.appendleft( part )
             logging.info( "replying to %s", comment.id )
             logging.debug( reply )
-            # handle_ratelimit( comment.reply, reply + footer )
+            handle_ratelimit( comment.reply, reply + footer )
 
             # reset reply
             reply = ""
