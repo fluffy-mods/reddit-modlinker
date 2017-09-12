@@ -28,8 +28,6 @@ config = {
     "user_agent": 'python:rimworld-modlinker:v1.0 (by /u/FluffierThanThou)'
 }
 
-logger.info( config )
-
 # footer text
 footer = "\n\n*****\n^(I'm a bot | ) [^(read more about me here)](https://github.com/FluffierThanThou/reddit-modlinker) ^(| I was made by /u/FluffierThanThou)"
 
