@@ -263,7 +263,7 @@ for comment in stream.comments():
             logging.debug( part )
             continue
 
-        # else reattach this part, and post a reply
+        # else requeue this part, and post a reply
         else:
             parts.appendleft( part )
             logging.info( "replying to %s", comment.id )
@@ -272,6 +272,12 @@ for comment in stream.comments():
 
             # reset reply
             reply = ""
+    
+    # if we exited the last block with a non "" reply, we still have a non-full reply to make
+    if reply:
+        logging.info( "replying to %s", comment.id )
+        logging.debug( reply )
+        handle_ratelimit( comment.reply, reply + footer )
                      
     # done!
     commentDone( comment.id, commentsDone )
