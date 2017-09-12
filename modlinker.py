@@ -47,7 +47,9 @@ regexes = [
 ]
 
 # set up logging
-logging.basicConfig(format='%(asctime)20s :: %(module)s :: %(levelname)s :: %(message)s', datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO )
+logging.basicConfig(format='%(asctime)20s :: %(module)s :: %(levelname)s :: %(message)s', \
+                    datefmt='%Y-%m-%d %H:%M:%S', \
+                    level=logging.DEBUG )
 
 class Mod:
     '''
@@ -167,7 +169,6 @@ def formatResults( request, mods ):
     info['count'] = len( mods )
 
     # chop mods array to size
-    print request, request.count, dir(request)
     mods = mods[:request.count]
 
     # generate result overview
