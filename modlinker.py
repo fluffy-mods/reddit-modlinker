@@ -167,6 +167,7 @@ def formatResults( request, mods ):
     info['request'] = request
     info['request_url'] = query_url.format( http.quote( request.query ) )
     info['count'] = len( mods )
+    info['countShown'] = min( len( mods ), request.count )
 
     # chop mods array to size
     mods = mods[:request.count]
@@ -176,7 +177,7 @@ def formatResults( request, mods ):
         result = "Mod | Author \n :-|-: \n"
         for mod in mods:
             result += "[{}]({}) | by [{}]({})\n".format( mod.title, mod.url, mod.authorName, mod.authorUrl )
-        result += "\n\n^(Workshop search for) [^(`{request.query}`)]({request_url}) ^(gave {count} results, I'm showing you the top {request.count} results)".format( **info )
+        result += "\n\n^(Workshop search for) [^(`{request.query}`)]({request_url}) ^(gave {count} results, I'm showing you the top {countShown} results)".format( **info )
     elif mods:
         mod = mods[0]
         result = "[{}]({}) by [{}]({})".format( mod.title, mod.url, mod.authorName, mod.authorUrl )
