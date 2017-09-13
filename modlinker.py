@@ -4,6 +4,7 @@ import sys
 import re
 import logging
 import urllib2 as http
+import urllib
 import time
 from collections import deque
 
@@ -14,7 +15,7 @@ import praw
 from bs4 import BeautifulSoup as bs
 
 # configuration
-query_url = 'http://steamcommunity.com/workshop/browse/?appid=294100&searchtext={}&childpublishedfileid=0&browsesort=textsearch&section=home'
+query_url = 'http://steamcommunity.com/workshop/browse/?{params}'
 regexFlags = re.IGNORECASE + re.MULTILINE
 MAX_RESULTS = 10
 MAX_LENGTH = 9900 # real max is 10000, leave a bit of wiggle room
@@ -29,6 +30,11 @@ config = {
     "user_agent": 'python:rimworld-modlinker:v1.0 (by /u/FluffierThanThou)'
 }
 
+steam_request_params = dict(
+    appid=294100,               # RimWorld
+    browsesort="textsearch"     # Full text (description) search?
+)
+
 # footer text
 footer = "\n\n*****\n^(I'm a bot | ) [^(read more about me here)](https://github.com/FluffierThanThou/reddit-modlinker) ^(| I was made by )[^/u\/FluffierThanThou](/user/FluffierThanThou)"
 
@@ -36,14 +42,14 @@ footer = "\n\n*****\n^(I'm a bot | ) [^(read more about me here)](https://github
 regexes = [
     # link to a single mod, with a single keyword
     # e.g. `linkmod: Colony Manager` does a steam search for "Colony Manager" and shows the top result
-    re.compile(r".*?there's a mod for that: (.*?)(?:,|;|:|\.|$)", regexFlags),
-    re.compile(r".*?linkmod:? (.*?)(?:,|;|:|\.|$)", regexFlags),
+    re.compile(r".*?there's a (mod|scenario) for that: (.*?)(?:,|;|:|\.|$)", regexFlags),
+    re.compile(r".*?link(mod|scenario):? (.*?)(?:,|;|:|\.|$)", regexFlags),
 
     # link to a number of mods, for each of a number of keywords
     # e.g. `there's 4 mods for that: manager, tab, fluffy` does a steam search for "manager", "tab" and "fluffy" separately, and 
     # shows the top 4 results for each.
-    re.compile(r".*?link\s?(\d*)?\s?mods:? (.*?)(?:;|:|\.|$)", regexFlags), # https://regex101.com/r/bS5mG3/3
-    re.compile(r".*?there(?:'s| are) (\d*)? ?mods? for that:? (.*?)(?:;|:|\.|$)", regexFlags) # https://regex101.com/r/bS5mG3/4
+    re.compile(r".*?link\s?(\d*)?\s?(mod|scenario)s:? (.*?)(?:;|:|\.|$)", regexFlags), # https://regex101.com/r/bS5mG3/3
+    re.compile(r".*?there(?:'s| are) (\d*)? ?(mod|scenario)s for that:? (.*?)(?:;|:|\.|$)", regexFlags) # https://regex101.com/r/bS5mG3/4
     # note that lists are extracted as a block, and further split up in the ModRequest factories.
 ]
 
@@ -76,49 +82,67 @@ class ModRequest:
     '''
     Simple wrapper for search term + count
     '''
-    query = ""
-    count = ""
-
-    def __init__( self, query, count = 1 ):
-        self.query = query
+    def __init__( self, mod, query, count = 1, tags = [] ):
         if isinstance( count, basestring ):
             count = int( count )
         if count > MAX_RESULTS:
             count = MAX_RESULTS
+        self.mod = mod
+        self.query = query
         self.count = count
+        self.tags = list( tags )
+        if self.mod:
+            self.tags.append( "Mod" )
+        else: 
+            self.tags.append( "Scenario" )
 
-    @classmethod
-    def fromTuple( cls, request ):
-        parts = re.split( r',', request[1] )
-        count = request[0] if request[0] else 1
-        return [ cls( part.strip(), count ) for part in parts ]
-        
-    @classmethod
-    def fromString( cls, request ):
-        return [ cls( request ) ]
-    
+    def getUrl( self ):
+        params = dict( steam_request_params )
+        params['requiredtags[]'] = self.tags
+        params['searchtext'] = self.query
+        return query_url.format( params = urllib.urlencode( params, True ) )
+
     @classmethod
     def fromQuery( cls, request ):
-        if isinstance( request, tuple ):
-            return cls.fromTuple( request )
+        mod = True
+        query = ""
+        count = 1
+
         if isinstance( request, basestring ):
-            return cls.fromString( request )
+            return [ cls( True, request ) ]
+
+        if not isinstance( request, tuple ):
+            logging.error( "bad request: %", request )
+            return []
+
+        # e.g. link{0: mod|scenario}: {2: query string}
+        if len(request) == 2:
+            mod = request[0] == "mod"
+            return [ cls( mod, request[1] ) ]
+
+        # e.g. link{0: count}{1: mod|scenario}s: {2: query string}
+        if len(request) == 3:
+            count = request[0] if request[0] else 1
+            mod = request[1] == "mod"
+            parts = re.split( r',', request[2] )
+            return [ cls( mod, part.strip(), count ) for part in parts ]
 
     def __repr__( self ):
-        return "Request for {} mods matching {}".format( self.count, self.query )
+        return "Request for {} {}s matching {}".format( self.count, "mod" if self.mod else "scenario", self.query )
 
-def searchWorkshop( query ):
+def searchWorkshop( request ):
     '''
     Scrape the Steam Workshop page for results, return a list of Mod objects
     '''
     # fetch workshop search results (thankfully this is a simple GET form)
-    logging.debug("GET %s", query_url.format(http.quote(query)))
-    raw = http.urlopen( query_url.format( http.quote( query ) ) ).read()
-    logging.debug( raw )
+    url = request.getUrl()
+    logging.debug("GET %s", url )
+    raw = http.urlopen(url).read()
+    logging.debug(raw)
 
     # parse it for mod entries
     mods = [ Mod( mod ) for mod in bs( raw, "html.parser" ).select( "div.workshopItem" ) ]
-    logging.info( "Found %i results for %s", len( mods ), query )
+    logging.info( "Found %i results for %s", len( mods ), request )
     return mods
 
 def getCommentsDone():
@@ -168,7 +192,7 @@ def formatResults( request, mods ):
     # prepare info dict
     info = {}
     info['request'] = request
-    info['request_url'] = query_url.format( http.quote( request.query ) )
+    info['request_url'] = request.getUrl()
     info['count'] = len( mods )
     info['countShown'] = min( len( mods ), request.count )
 
@@ -228,6 +252,13 @@ for comment in stream.comments():
 
     # for all regexes, get all results, and for all results, get all mod requests.
     requests = [ request for regex in regexes for query in regex.findall( comment.body ) for request in ModRequest.fromQuery( query ) ]
+    
+    # queries = [ query for regex in regexes for query in regex.findall( comment.body ) ]
+    # for query in queries:
+    #     print query
+    #     for request in ModRequest.fromQuery( query ):
+    #         print "\t", request
+    #         print "\t", request.getUrl()
 
     # skip if there are no requests for this comments
     if not requests:
@@ -246,7 +277,7 @@ for comment in stream.comments():
     # for each search term;
     for request in requests:
         # get a list of results
-        mods = searchWorkshop( request.query )
+        mods = searchWorkshop( request )
 
         # generate a formatted result table/line, and add it to the queue
         parts.append( formatResults( request, mods ) )
