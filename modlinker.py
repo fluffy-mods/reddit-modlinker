@@ -44,12 +44,11 @@ regexes = [
     # shows the top 4 results for each.
     re.compile(r".*?link\s?(\d*)?\s?mods:? (.*?)(?:;|:|\.|$)", regexFlags), # https://regex101.com/r/bS5mG3/3
     re.compile(r".*?there(?:'s| are) (\d*)? ?mods? for that:? (.*?)(?:;|:|\.|$)", regexFlags) # https://regex101.com/r/bS5mG3/4
+    # note that lists are extracted as a block, and further split up in the ModRequest factories.
 ]
 
 # set up logging
-logging.basicConfig(format='%(asctime)20s :: %(module)s :: %(levelname)s :: %(message)s', \
-                    datefmt='%Y-%m-%d %H:%M:%S', \
-                    level=logging.INFO )
+logging.basicConfig( format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO )
 
 class Mod:
     '''
@@ -146,6 +145,10 @@ def commentDone( comment_id, commentsDone ):
         f.write(comment_id + "\n")
 
 def hasReplyBy( comment, username ):
+    # refresh has a nasty tendency to fail on fresh posts.
+    # since this is really only meant to avoid duplication on a restart of the script, 
+    # and fresh posts are unlikely to have replies, just assume we haven't replied yet.
+    # TODO: Selectively catch, raise other errors.
     try:
         comment.refresh()
     except Exception( error ):
@@ -169,7 +172,7 @@ def formatResults( request, mods ):
     info['count'] = len( mods )
     info['countShown'] = min( len( mods ), request.count )
 
-    # chop mods array to size
+    # chop mods array to requested size
     mods = mods[:request.count]
 
     # generate result overview
@@ -213,8 +216,6 @@ for comment in stream.comments():
     logging.info( "new comment: %s", comment.id )
     logging.debug( "%s", comment.body.encode( 'ascii', 'replace' ) )
 
-    requests = [ request for regex in regexes for query in regex.findall( comment.body ) for request in ModRequest.fromQuery( query ) ]
-
     # skip if already processed
     if comment.id in commentsDone:
         logging.info( "comment.id known, skipping" )
@@ -224,6 +225,9 @@ for comment in stream.comments():
     if comment.author.name == config['username']:
         logging.info( "comment made by me, skipping" )
         continue
+
+    # for all regexes, get all results, and for all results, get all mod requests.
+    requests = [ request for regex in regexes for query in regex.findall( comment.body ) for request in ModRequest.fromQuery( query ) ]
 
     # skip if there are no requests for this comments
     if not requests:
@@ -236,7 +240,7 @@ for comment in stream.comments():
         commentDone( comment.id, commentsDone )
         continue
 
-    # get reply object ready
+    # get a queue ready for results
     parts = deque()
 
     # for each search term;
@@ -244,7 +248,7 @@ for comment in stream.comments():
         # get a list of results
         mods = searchWorkshop( request.query )
 
-        # generate a formatted result table/line
+        # generate a formatted result table/line, and add it to the queue
         parts.append( formatResults( request, mods ) )
     
     # paste parts that fit in one comment together,
@@ -254,11 +258,11 @@ for comment in stream.comments():
         # get the next part
         part = parts.popleft()
 
-        # attach it if it fits
+        # add it to the reply if it fits
         if len( part ) + len( reply ) + len( footer ) <= MAX_LENGTH:
             reply += "\n\n" + part
 
-        # remove it if it could never fit
+        # remove it if it could never fit (shouldn't really be possible, unless MAX_REPLIES is raised to 30 and we get some very long mod/author names)
         elif len( part ) + len( footer ) > MAX_LENGTH:
             logging.warning( "comment too long (%d/%d), skipping", len( part ) + len( footer ), MAX_LENGTH )
             logging.debug( part )
