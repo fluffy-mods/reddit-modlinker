@@ -14,14 +14,19 @@ Teddy frequents these reddits;
 Teddy is a bot, so his vocabulary is a bit limited. I've managed to teach him the following commands;
 
 `there's a mod for that: [query]`  
+`there's a scenario for that: [query]`  
 `linkmod: [query]`  
-Tells teddy to go search for `[query]`, and post a single link for the top result. 
+`linkscenario: [query]`  
+Tells teddy to go search for `[query]`, and post a single link for the top mod/scenario. 
 
 >_note; the square brackets are just to show this is a variable, don't type them in the actual post!_
 
 `there's mods for that: [query1], [query2], ...`  
 `there are mods for that: [query1], [query2], ...`  
 `linkmods: [query1], [query2], ...`  
+`there's scenarios for that: [query1], [query2], ...`  
+`there are scenarios for that: [query1], [query2], ...`  
+`linkscenarios: [query1], [query2], ...`  
 Asks Teddy to go and fetch a single link for each of the queries. 
 
 >_note; there's no limit to the amount of queries you can do at once, and Teddy will even spread his response over multiple comments if necessary. Please respect reddiquete and subreddit rules. Spamming by bot may get you (and Teddy!) banned._
@@ -29,6 +34,9 @@ Asks Teddy to go and fetch a single link for each of the queries.
 `there's [count] mods for that: [query], [query], ...`  
 `there are [count] mods for that: [query1], [query2], ...`  
 `link[count]mods: [query1], [query2], ...`  
+`there's [count] scenarios for that: [query], [query], ...`  
+`there are [count] scenarios for that: [query1], [query2], ...`  
+`link[count]scenarios: [query1], [query2], ...`  
 Asks Teddy to go and fetch `[count]` links for each of the queries. Teddy only fetches a maximum of 10 links per request. He says it's because of union rules, but I suspect he's just growing lazy. 
 
 ## How can I help make Teddy better?
