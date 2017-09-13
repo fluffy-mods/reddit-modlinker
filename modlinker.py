@@ -90,7 +90,7 @@ class ModRequest:
 
     @classmethod
     def fromTuple( cls, request ):
-        parts = re.split( r',|and', request[1] )
+        parts = re.split( r',', request[1] )
         count = request[0] if request[0] else 1
         return [ cls( part.strip(), count ) for part in parts ]
         
