@@ -30,7 +30,7 @@ config = {
 }
 
 # footer text
-footer = "\n\n*****\n^(I'm a bot | ) [^(read more about me here)](https://github.com/FluffierThanThou/reddit-modlinker) ^(| I was made by )[^/u\/FluffierThanThou](/u/FluffierThanThou)"
+footer = "\n\n*****\n^(I'm a bot | ) [^(read more about me here)](https://github.com/FluffierThanThou/reddit-modlinker) ^(| I was made by )[^/u\/FluffierThanThou](/user/FluffierThanThou)"
 
 # request pattern matches
 regexes = [
