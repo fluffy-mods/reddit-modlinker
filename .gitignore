@@ -1,2 +1,3 @@
 environment.cmd
 comments.txt
+*.pyc
