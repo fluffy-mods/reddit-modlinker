@@ -18,7 +18,7 @@ query_url = 'http://steamcommunity.com/workshop/browse/?{params}'
 regexFlags = re.IGNORECASE + re.MULTILINE
 MAX_RESULTS = 10
 MAX_LENGTH = 9900 # real max is 10000, leave a bit of wiggle room
-REDDITS = "bottesting"
+REDDITS = "RimWorld+TalesFromRimWorld+ShitRimWorldSays+SpaceCannibalism"
 
 # secrets, (mostly) defined in environment
 config = {
