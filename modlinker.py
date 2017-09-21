@@ -18,15 +18,15 @@ query_url = 'http://steamcommunity.com/workshop/browse/?{params}'
 regexFlags = re.IGNORECASE + re.MULTILINE
 MAX_RESULTS = 10
 MAX_LENGTH = 9900 # real max is 10000, leave a bit of wiggle room
-REDDITS = "RimWorld+TalesFromRimWorld+ShitRimWorldSays+SpaceCannibalism"
+REDDITS = os.environ['REDDIT_LISTEN_TO']
 
-# secrets, (mostly) defined in environment
+# config for PRAW, secrets are defined in environment
 config = {
     "username": os.environ['REDDIT_USER'],
     "password": os.environ['REDDIT_PASSWORD'],
     "client_id": os.environ['REDDIT_CLIENT_ID'],
     "client_secret": os.environ['REDDIT_CLIENT_SECRET'],
-    "user_agent": 'python:rimworld-modlinker:v1.0 (by /u/FluffierThanThou)'
+    "user_agent": 'python:rimworld-modlinker:v1.1 (by /u/FluffierThanThou)'
 }
 
 # only used for creating html links
@@ -104,7 +104,7 @@ class ModRequest:
             count = request[0] if request[0] else 1
             mod = request[1] == "mod"
             parts = re.split( r',', request[2] )
-            return [ cls( mod, part.strip(), count ) for part in parts ]
+            return [ cls( mod, part.strip(), count ) for part in parts if part.strip() ]
 
     def __repr__( self ):
         return "Request for {} {}s matching {}".format( self.count, "mod" if self.mod else "scenario", self.query )
