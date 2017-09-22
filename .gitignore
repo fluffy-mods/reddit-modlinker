@@ -1,3 +1,5 @@
 environment.cmd
 comments.txt
 *.pyc
+pylint_messages.txt
+.vscode

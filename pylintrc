@@ -133,7 +133,8 @@ docstring-min-length=-1
 function-name-hint=(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$
 
 # Regular expression matching correct function names
-function-rgx=(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$
+# allow camelCase, stop being pedantic
+function-rgx=(([a-z][A-Za-z0-9_]{2,30})|(_[a-z0-9_]*))$
 
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,j,k,ex,Run,_

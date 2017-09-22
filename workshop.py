@@ -1,12 +1,17 @@
-from steam import WebAPI
+import logging
 import os
 import re
-import logging
+import urllib
+
+from steam import WebAPI
+
+import common
 
 log = logging.getLogger(__name__)
 
-_api = WebAPI(key=os.environ['STEAM_KEY'])
+_api = WebAPI( key=common.STEAM['key'] )
 _mod_url = "https://steamcommunity.com/sharedfiles/filedetails/?id={}"
+
 
 _params = {
     # the parts that we're interested in
@@ -48,14 +53,14 @@ _tag_regex = re.compile( r"\d\.(\d{2})" )
 def _tagsToAlpha( tags ):
     for tag in tags:
         match = _tag_regex.match( tag['tag'] )
-        log.debug( "tag regex: {}, {}", tag['tag'], match )
+        log.debug( "tag regex: %s, %s", tag['tag'], match )
         if match:
             return "A" + match.group(1)    
 
 _alpha_regex = re.compile( r"(\d{2})" )
 def alphaToTag( alphastring ):
     match = _alpha_regex.search( str( alphastring ) )
-    log.debug( "alpha regex: {}, {}", str( alphastring ), match )
+    log.debug( "alpha regex: %s, %s", str( alphastring ), match )
     if match:
         return "0." + match.group(0)
 
@@ -63,7 +68,7 @@ def _findAuthor( mod, authors):
     for author in authors:
         if author['steamid'] == mod['creator']:
             return author 
-    log.error( "no author found for mod {}", mod['title'].encode("ascii", "replace"))
+    log.error( "no author found for mod %s", mod['title'].encode("ascii", "replace"))
 
 def search( query, count = 1, tags = [] ):
     # allow calling with a ModRequest, as well as directly
@@ -109,6 +114,58 @@ class Mod:
     
     def __len__( self ):
         return 1
+
+
+class ModRequest:
+    '''
+    Simple wrapper for search term + count
+    '''
+    def __init__( self, mod, query, count = 1, tags = [] ):
+        if isinstance( count, basestring ):
+            count = int( count )
+        if count > common.MAX_RESULTS:
+            count = common.MAX_RESULTS
+        self.mod = mod
+        self.query = query
+        self.count = count
+        self.tags = list( tags )
+        if self.mod:
+            self.tags.append( "Mod" )
+        else: 
+            self.tags.append( "Scenario" )
+
+    def getUrl( self ):
+        params = dict( common.STEAM_WORKSHOP_PARAMS )
+        params['requiredtags[]'] = self.tags
+        params['searchtext'] = self.query
+        return common.STEAM_WORKSHOP_URL.format( params = urllib.urlencode( params, True ) )
+
+    @classmethod
+    def fromQuery( cls, request ):
+        mod = True
+        count = 1
+
+        if isinstance( request, basestring ):
+            return [ cls( True, request ) ]
+
+        if not isinstance( request, tuple ):
+            log.error( "bad request: %s", request )
+            return []
+
+        # e.g. link{0: mod|scenario}: {2: query string}
+        if len(request) == 2:
+            mod = request[0] == "mod"
+            return [ cls( mod, request[1] ) ]
+
+        # e.g. link{0: count}{1: mod|scenario}s: {2: query string}
+        if len(request) == 3:
+            count = request[0] if request[0] else 1
+            mod = request[1] == "mod"
+            parts = re.split( r',', request[2] )
+            return [ cls( mod, part.strip(), count ) for part in parts if part.strip() ]
+
+    def __repr__( self ):
+        return "Request for {} {}s matching {}".format( self.count, "mod" if self.mod else "scenario", self.query )
 
 if __name__ == '__main__':
     print search( "FluffierThanThou", 10 )
