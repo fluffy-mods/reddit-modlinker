@@ -1,7 +1,7 @@
 import logging
 from common import MAX_LENGTH, FOOTER
 
-log = logging.getLogger(__name__)
+log = logging.getLogger(__name__) # pylint: disable=invalid-name
 
 def formatResults( request, mods ):
     '''

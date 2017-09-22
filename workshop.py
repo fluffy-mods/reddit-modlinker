@@ -83,7 +83,7 @@ def search( query, count = 1, tags = [] ):
 
     # raw response
     log.debug( "search for %s files matching '%s' with tags [%s]", _params['search_text'], _params['numperpage'], ", ".join(_params['requiredtags']))
-    raw_mods = _api.IPublishedFileService.QueryFiles(**_params)
+    raw_mods = _api.IPublishedFileService.QueryFiles( **_params )
 
     # get list of mods
     try:
