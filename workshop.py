@@ -12,7 +12,6 @@ log = logging.getLogger(__name__)
 _api = WebAPI( key=common.STEAM['key'] )
 _mod_url = "https://steamcommunity.com/sharedfiles/filedetails/?id={}"
 
-
 _params = {
     # the parts that we're interested in
     "search_text": "", # required
@@ -162,7 +161,7 @@ class ModRequest:
         if isinstance( request, basestring ):
             return [ cls( True, request ) ]
 
-        if not isinstance( request, tuple ):
+        if not isinstance( request, tuple ) or len(request) == 2:
             log.error( "bad request: %s", request )
             return []
 
@@ -186,9 +185,9 @@ class ModRequest:
 
 if __name__ == '__main__':
     logging.basicConfig( format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO )
-    # print "testing steam API"
-    # for mod in search( "FluffierThanThou", 10 ):
-    #     print "\t", mod
+    print "testing steam API"
+    for mod in search( "FluffierThanThou", 10 ):
+        print "\t", mod
 
     print "testing query recognition"
     for query in [

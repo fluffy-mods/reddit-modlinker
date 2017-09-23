@@ -19,7 +19,7 @@ there's a scenario for that: [query]
 linkmod: [query]  
 linkscenario: [query]  
 ```
-Tells teddy to go search for `[query]`, and post a single link for the top mod/scenario. 
+Tells teddy to go search for `[query]`, and post a single link for the top mod/scenario for the latest version of RimWorld. 
 
 >_note; the square brackets are just to show this is a variable, don't type them in the actual post!_
 
@@ -31,7 +31,7 @@ there's scenarios for that: [query1], [query2], ...
 there are scenarios for that: [query1], [query2], ...  
 linkscenarios: [query1], [query2], ...  
 ```
-Asks Teddy to go and fetch a single link for each of the queries. 
+Asks Teddy to go and fetch a single link for each of the queries, for the latest version of RimWorld. 
 
 >_note; there's no limit to the amount of queries you can do at once, and Teddy will even spread his response over multiple comments if necessary. Please respect reddiquete and subreddit rules. Spamming by bot may get you (and Teddy!) banned._
 
@@ -43,7 +43,20 @@ there's [count] scenarios for that: [query], [query], ...
 there are [count] scenarios for that: [query1], [query2], ...  
 link[count]scenarios: [query1], [query2], ...  
 ```
-Asks Teddy to go and fetch `[count]` links for each of the queries. Teddy only fetches a maximum of 10 links per request. He says it's because of union rules, but I suspect he's just growing lazy. 
+Asks Teddy to go and fetch `[count]` links for each of the queries, for the latest version of RimWorld. Teddy only fetches a maximum of 10 links per request. He says it's because of union rules, but I suspect he's just growing lazy. 
+
+```
+there's an Alpha [alpha] mod for that: [query]  
+there are [count] A[alpha] mods for that: [query1], [query2], ...  
+link[A[alpha]]mod: [query]  
+link alpha 16 mods: [query1, query2], ...  
+```
+Specifying the alpha will make Teddy search for mods/scenarios for a specific version of RimWorld.
+
+>_note; if the alpha is not mentioned, Teddy will always search for mods/scenarios for the current version of RimWorld._  
+
+>_note; the alpha can be provided in any common format; `A15`, `Alpha 15`, `[A15]` and `aLpHa 15` are all equivalent._
+
 
 ## How can I help make Teddy better?
 You can leave suggestions, bug reports and other correspondence for Teddy [here](/issues). 
