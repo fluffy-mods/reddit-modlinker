@@ -6,7 +6,7 @@ import logging
 from collections import deque
 
 # our wrappers around the reddit and steam apis
-import post
+import formatting
 import reddit
 import workshop
 from common import REDDIT, REGEXES
@@ -54,10 +54,10 @@ for comment in stream.comments():
         mods = workshop.search( request )
 
         # generate a formatted result table/line, and add it to the queue
-        parts.append( post.formatResults( request, mods ) )
+        parts.append( formatting.formatResults( request, mods ) )
 
     # get post(s)
-    posts = post.createPosts( parts )
+    posts = formatting.createPosts( parts )
     for index, post in enumerate( posts ):
         log.debug( "reply %s: \n%s", index, post )
         reply = reddit.handle_ratelimit( comment.reply, post )

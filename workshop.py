@@ -57,7 +57,7 @@ def _tagsToAlpha( tags ):
         if match:
             return "A" + match.group(1)    
 
-_alpha_regex = re.compile( r"(\d{2})" )
+_alpha_regex = re.compile( r"\b(?:A|Alpha ?)(\d{2})\b" )
 def alphaToTag( alphastring ):
     match = _alpha_regex.search( str( alphastring ) )
     log.debug( "alpha regex: %s, %s", str( alphastring ), match )
@@ -115,6 +115,11 @@ class Mod:
     def __len__( self ):
         return 1
 
+    def nameIncludesAlpha( self ):
+        match = _alpha_regex.search( self.title )
+        if match:
+            return True
+        return False
 
 class ModRequest:
     '''
@@ -168,4 +173,8 @@ class ModRequest:
         return "Request for {} {}s matching {}".format( self.count, "mod" if self.mod else "scenario", self.query )
 
 if __name__ == '__main__':
-    print search( "FluffierThanThou", 10 )
+    for mod in search( "Veinminer", 10 ):
+        print mod
+        print "includesAlpha?", mod.nameIncludesAlpha()
+
+

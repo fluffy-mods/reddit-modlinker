@@ -47,3 +47,8 @@ def handle_ratelimit(func, *args, **kwargs):
 
 def getStream( reddits ):
     return praw.Reddit( **REDDIT ).subreddit( reddits ).stream
+
+if __name__ == '__main__':
+    print REDDIT
+    for comment in getStream( REDDIT['subreddits'] ).comments():
+        print (comment.body + " by " + comment.author.name).encode("ascii", "replace")
