@@ -57,12 +57,12 @@ def _tagsToAlpha( tags ):
         if match:
             return "A" + match.group(1)    
 
-_alpha_regex = re.compile( r"\b(?:A|Alpha ?)(\d{2})\b" )
+_alpha_regex = re.compile( r"\b(?:A|Alpha ?)?(\d{2})\b" )
 def alphaToTag( alphastring ):
     match = _alpha_regex.search( str( alphastring ) )
     log.debug( "alpha regex: %s, %s", str( alphastring ), match )
     if match:
-        return "0." + match.group(0)
+        return "0." + match.group(1)
 
 def _findAuthor( mod, authors):
     for author in authors:
@@ -125,7 +125,7 @@ class ModRequest:
     '''
     Simple wrapper for search term + count
     '''
-    def __init__( self, mod, query, count = 1, tags = [] ):
+    def __init__( self, mod, query, alpha, count = 1 ):
         if isinstance( count, basestring ):
             count = int( count )
         if count > common.MAX_RESULTS:
@@ -133,7 +133,16 @@ class ModRequest:
         self.mod = mod
         self.query = query
         self.count = count
-        self.tags = list( tags )
+        self.tags = []
+        if alpha:
+            alpha_tag = alphaToTag( alpha )
+            if alpha_tag:
+                self.tags.append( alpha_tag )
+            else:
+                log.error( "Failed to get alpha tag from string: %s", alpha )
+        else: 
+            self.tags.append( common.CURRENT_ALPHA )
+
         if self.mod:
             self.tags.append( "Mod" )
         else: 
@@ -157,24 +166,63 @@ class ModRequest:
             log.error( "bad request: %s", request )
             return []
 
-        # e.g. link{0: mod|scenario}: {2: query string}
-        if len(request) == 2:
-            mod = request[0] == "mod"
-            return [ cls( mod, request[1] ) ]
-
-        # e.g. link{0: count}{1: mod|scenario}s: {2: query string}
+        # e.g. link{0: A17}{1: mod|scenario}: {2: query string}
         if len(request) == 3:
-            count = request[0] if request[0] else 1
             mod = request[1] == "mod"
-            parts = re.split( r',', request[2] )
-            return [ cls( mod, part.strip(), count ) for part in parts if part.strip() ]
+            return [ cls( mod, request[2], request[0] ) ]
+
+        # e.g. link{0: count}{1: A17}{2: mod|scenario}s: {2: query string}
+        if len(request) == 4:
+            count = request[0] if request[0] else 1
+            mod = request[2] == "mod"
+            parts = re.split( r',', request[3] )
+            return [ cls( mod, part.strip(), request[1], count ) for part in parts if part.strip() ]
 
     def __repr__( self ):
-        return "Request for {} {}s matching {}".format( self.count, "mod" if self.mod else "scenario", self.query )
+        try:
+            return "Request for {} [{}] matching {}".format( self.count, ", ".join( self.tags), self.query )
+        except:
+            print vars(self)
 
 if __name__ == '__main__':
-    for mod in search( "Veinminer", 10 ):
-        print mod
-        print "includesAlpha?", mod.nameIncludesAlpha()
+    logging.basicConfig( format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO )
+    # print "testing steam API"
+    # for mod in search( "FluffierThanThou", 10 ):
+    #     print "\t", mod
 
+    print "testing query recognition"
+    for query in [
+        "there's an alpha 11 mod for that: blurb",
+        "there's mods for that: josephine, peter, jasper",
+        "there's 4 mods for that: josephine, peter, jasper",
+        "there are 20 mods for that: josephine, peter, jasper",
+        "there are mods for that: josephine, peter, jasper",
+        "there are mods for that. Other text.",
+        "You know, there are mods for that: Timmy",
+        "there's A15 mods for that: josephine, peter, jasper",
+        "there's 4 A17 mods for that: josephine, peter, jasper",
+        "there are 20 [A14] mods for that: josephine, peter, jasper",
+        "there are alpha 12 mods for that: josephine, peter, jasper",
+        "there are Alpha 14 mods for that. Other text.",
+        "You know, there are [Alpha 15] mods for that: Timmy",
+        "link4mods: josephine, peter, jasper",
+        "linkmods: josephine, peter, jasper",
+        "link 4 mods: josephine, peter, jasper",
+        "link mods: josephine, peter, jasper",
+        "link4[A15]mods: josephine, peter, jasper.",
+        "link 4 A15 mods josephine, peters, jasper",
+        "linkmod: timmy!",
+        "linkA14mod: ancient mods are the best",
+        "linkscenario: scenarios are for the brave",
+        "there's a mod for that: timmy!",
+        "there's an A16 mod for that: timmy!",
+        "there's a scenario for that: boris?"
+    ]:
+        print "\t" + query
+        for regex in common.REGEXES:
+            for match in regex.findall( query ):
+                print "\t\t", match
+                for request in ModRequest.fromQuery( match ):
+                    print "\t\t\t", request
+        raw_input("Press Enter to continue...")
 

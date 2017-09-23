@@ -4,6 +4,8 @@ import re
 # configuration
 MAX_RESULTS = 10
 MAX_LENGTH = 9900 # real max is 10000, leave a bit of wiggle room
+# TODO: Dynamically get the current alpha number
+CURRENT_ALPHA = os.environ['RIMWORLD_CURRENT_ALPHA'] # default tag for the current alpha
 
 # secrets for reddit
 REDDIT = {
@@ -35,13 +37,15 @@ _regexFlags = re.IGNORECASE + re.MULTILINE # pylint: disable=invalid-name
 REGEXES = [
     # link to a single mod, with a single keyword
     # e.g. `linkmod: Colony Manager` does a steam search for "Colony Manager" and shows the top result
-    re.compile(r".*?there's a (mod|scenario) for that: (.*?)(?:,|;|:|\.|$)", _regexFlags),
-    re.compile(r".*?link(mod|scenario):? (.*?)(?:,|;|:|\.|$)", _regexFlags),
+    # 1; alpha?, 2; mod|scenario, 3; query
+    re.compile(r".*?there's an? ?(?:\[?(?:a|alpha )(\d{2})\]?)? (mod|scenario) for that: (.*?)(?:,|;|:|\.|$)", _regexFlags), # https://regexr.com/3gqbv
+    re.compile(r".*?link ?(?:\[?(?:a|alpha )(\d{2})\]?)? ?(mod|scenario):? (.*?)(?:,|;|:|\.|$)", _regexFlags), # https://regexr.com/3gqc2
 
     # link to a number of mods, for each of a number of keywords
-    # e.g. `there's 4 mods for that: manager, tab, fluffy` does a steam search for "manager", "tab" and "fluffy" separately, and
+    # e.g. `there's 4 A17 mods for that: manager, tab, fluffy` does a steam search for "manager", "tab" and "fluffy" separately, and
     # shows the top 4 results for each.
-    re.compile(r".*?link\s?(\d*)?\s?(mod|scenario)s:? (.*?)(?:;|:|\.|$)", _regexFlags), # https://regex101.com/r/bS5mG3/3
-    re.compile(r".*?there(?:'s| are) (\d*)? ?(mod|scenario)s for that:? (.*?)(?:;|:|\.|$)", _regexFlags) # https://regex101.com/r/bS5mG3/4
+    # 1; count?, 2; alpha?, 3; mod|scenario, 4; query
+    re.compile(r".*?link\s?(\d*)? ?(?:\[?(?:a|alpha )(\d{2})\]?)? ?(mod|scenario)s:? (.*?)(?:;|:|\.|$)", _regexFlags), # https://regex101.com/r/bS5mG3/7
+    re.compile(r".*?there(?:'s| are) (\d*)? ?(?:\[?(?:a|alpha )(\d{2})\]?)? ?(mod|scenario)s? for that:? (.*?)(?:;|:|\.|$)", _regexFlags) # https://regex101.com/r/bS5mG3/8
     # note that lists are extracted as a block, and further split up in the ModRequest factories.
 ]
