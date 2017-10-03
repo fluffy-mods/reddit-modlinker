@@ -5,11 +5,11 @@ import urllib
 
 from steam import WebAPI
 
-import common
+from common import CURRENT_ALPHA, MAX_RESULTS, REGEXES, STEAM, STEAM_WORKSHOP_URL, STEAM_WORKSHOP_PARAMS
 
 log = logging.getLogger(__name__)
 
-_api = WebAPI( key=common.STEAM['key'] )
+_api = WebAPI( key = STEAM['key'] )
 _mod_url = "https://steamcommunity.com/sharedfiles/filedetails/?id={}"
 
 _params = {
@@ -21,8 +21,8 @@ _params = {
     # static 'settings'
     "query_type": 3, # required, this corresponds to the 'relevance' search mode.
     "return_tags": True, # required, we want to get tags back so we can show the Alpha number.
-    "appid": 294100, # required
-    "creator_appid": 294100, # required
+    "appid": STEAM_WORKSHOP_PARAMS['appid'], # required
+    "creator_appid": STEAM_WORKSHOP_PARAMS['appid'], # required
     "match_all_tags": True, # optional
     "cache_max_age_seconds": 120, # optional
 
@@ -75,7 +75,7 @@ def search( query, count = 1, tags = [] ):
         _params['search_text'] = query.query
         _params['numperpage'] = query.count
         _params['requiredtags'] = query.tags
-    except AttributeError: 
+    except AttributeError:
         _params['search_text'] = query
         _params['numperpage'] = count
         _params['requiredtags'] = tags
@@ -105,11 +105,11 @@ class Mod:
         self.title = mod['title'].encode("utf-8", "replace")
         self.url = _mod_url.format( mod['publishedfileid'] ).encode("utf-8", "replace")
         self.authorName = author['personaname'].encode("utf-8", "replace")
-        self.authorUrl = author['profileurl'].encode("utf-8", "replace")
+        self.authorUrl = author['profileurl'].encode("utf-8", "replace") + "myworkshopfiles/?appid=" + str( STEAM_WORKSHOP_PARAMS['appid'] )
         self.alpha = _tagsToAlpha( mod['tags'] )
                 
     def __repr__( self ):
-        return "[{}] {} by {}".format( self.alpha, self.title, self.authorName ) 
+        return "[{}] {} by {} ({}, {})".format( self.alpha, self.title, self.authorName, self.url, self.authorUrl ) 
     
     def __len__( self ):
         return 1
@@ -127,8 +127,8 @@ class ModRequest:
     def __init__( self, mod, query, alpha, count = 1 ):
         if isinstance( count, basestring ):
             count = int( count )
-        if count > common.MAX_RESULTS:
-            count = common.MAX_RESULTS
+        if count > MAX_RESULTS:
+            count = MAX_RESULTS
         self.mod = mod
         self.query = query
         self.count = count
@@ -140,7 +140,7 @@ class ModRequest:
             else:
                 log.error( "Failed to get alpha tag from string: %s", alpha )
         else: 
-            self.tags.append( common.CURRENT_ALPHA )
+            self.tags.append( CURRENT_ALPHA )
 
         if self.mod:
             self.tags.append( "Mod" )
@@ -148,10 +148,10 @@ class ModRequest:
             self.tags.append( "Scenario" )
 
     def getUrl( self ):
-        params = dict( common.STEAM_WORKSHOP_PARAMS )
+        params = dict( STEAM_WORKSHOP_PARAMS )
         params['requiredtags[]'] = self.tags
         params['searchtext'] = self.query
-        return common.STEAM_WORKSHOP_URL.format( params = urllib.urlencode( params, True ) )
+        return STEAM_WORKSHOP_URL.format( params = urllib.urlencode( params, True ) )
 
     @classmethod
     def fromQuery( cls, request ):
@@ -218,10 +218,12 @@ if __name__ == '__main__':
         "there's a scenario for that: boris?"
     ]:
         print "\t" + query
-        for regex in common.REGEXES:
+        for regex in REGEXES:
             for match in regex.findall( query ):
                 print "\t\t", match
                 for request in ModRequest.fromQuery( match ):
                     print "\t\t\t", request
+                    for result in search( request ):
+                        print "\t\t\t\t", result
         raw_input("Press Enter to continue...")
 
