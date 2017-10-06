@@ -215,7 +215,15 @@ if __name__ == '__main__':
         "linkscenario: scenarios are for the brave",
         "there's a mod for that: timmy!",
         "there's an A16 mod for that: timmy!",
-        "there's a scenario for that: boris?"
+        "there's a scenario for that: boris?",
+        "linkmod : Expanded Prosthetics",
+        "linkmod :",
+        "linkmod: Expanded Prosthetics",
+        "linkmod:",
+        "linkmod:Expanded Prosthetics",
+        "linkmod :Expanded Prosthetics",
+        "linkmod:Expanded Prosthetics",
+        "linkmod:"
     ]:
         print "\t" + query
         for regex in REGEXES:
