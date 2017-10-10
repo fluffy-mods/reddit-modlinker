@@ -170,13 +170,13 @@ class ModRequest:
             if not request[2]:
                 log.warning( "empty query" )
                 return []
-            mod = request[1] == "mod"
+            mod = request[1].lower() == "mod"
             return [ cls( mod, request[2], request[0] ) ]
 
         # e.g. link{0: count}{1: A17}{2: mod|scenario}s: {2: query string}
         if len(request) == 4:
             count = request[0] if request[0] else 1
-            mod = request[2] == "mod"
+            mod = request[2].lower() == "mod"
             parts = re.split( r',', request[3] )
             return [ cls( mod, part.strip(), request[1], count ) for part in parts if part.strip() ]
         
@@ -197,6 +197,7 @@ if __name__ == '__main__':
 
     print "testing query recognition"
     for query in [
+        "Link Mod: High Caliber",
         "there's an alpha 11 mod for that: blurb",
         "there's mods for that: josephine, peter, jasper",
         "there's 4 mods for that: josephine, peter, jasper",
