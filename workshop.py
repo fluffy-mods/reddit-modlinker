@@ -167,6 +167,9 @@ class ModRequest:
 
         # e.g. link{0: A17}{1: mod|scenario}: {2: query string}
         if len(request) == 3:
+            if not request[2]:
+                log.warning( "empty query" )
+                return []
             mod = request[1] == "mod"
             return [ cls( mod, request[2], request[0] ) ]
 
@@ -176,6 +179,9 @@ class ModRequest:
             mod = request[2] == "mod"
             parts = re.split( r',', request[3] )
             return [ cls( mod, part.strip(), request[1], count ) for part in parts if part.strip() ]
+        
+        log.error( "bad request: %s", request )
+        return []
 
     def __repr__( self ):
         try:
