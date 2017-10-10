@@ -218,7 +218,7 @@ if __name__ == '__main__':
         "link 4 A15 mods josephine, peters, jasper",
         "linkmod: timmy!",
         "linkA14mod: ancient mods are the best",
-        "linkscenario: scenarios are for the brave",
+        "linkscenario: scenarios are for the brave", 
         "there's a mod for that: timmy!",
         "there's an A16 mod for that: timmy!",
         "there's a scenario for that: boris?",
