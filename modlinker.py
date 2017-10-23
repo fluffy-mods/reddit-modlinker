@@ -9,6 +9,7 @@ from collections import deque
 import formatting
 import reddit
 import workshop
+import database
 from common import REDDIT, REGEXES
 
 # set up logging
@@ -55,6 +56,10 @@ for comment in stream.comments():
 
         # generate a formatted result table/line, and add it to the queue
         parts.append( formatting.formatResults( request, mods ) )
+
+        # add request to our 'analytics' database
+        for mod in mods:
+            database.log_record( comment, mod )
 
     # get post(s)
     posts = formatting.createPosts( parts )

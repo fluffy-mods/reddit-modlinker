@@ -120,6 +120,14 @@ class Mod:
             return True
         return False
 
+    def toObject( self ):
+        return {
+            "title": self.title,
+            "url": self.url,
+            "author": self.authorName,
+            "authorUrl": self.authorUrl
+        }
+
 class ModRequest:
     '''
     Simple wrapper for search term + count
