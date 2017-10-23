@@ -39,9 +39,9 @@ def handle_ratelimit(func, *args, **kwargs):
             return func(*args, **kwargs)
         except praw.exceptions.APIException as error:
             if error.error_type == "RATELIMIT":
-                log.warning( "rate limit exceeded. Sleeping for 1 minute." )
+                log.warning( "rate limit exceeded. Sleeping for 5 seconds." )
                 log.info( error.message )
-                time.sleep( 60 )
+                time.sleep( 5 )
             else:
                 raise
 
