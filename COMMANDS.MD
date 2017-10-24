@@ -1,9 +1,9 @@
 Teddy is a bot, so his vocabulary is a bit limited. I've managed to teach him commands for the following;
 
- [x] [Link a single mod or scenario](#link-a-single-mod-or-scenario)  
- [x] [Link multiple mods or scenarios](#link-multiple-mods-or-scenarios)  
- [x] [Link multiple results for a mod or scenario](#link-multiple-results-for-a-mod-or-scenario)  
- [x] [Link to a mod or scenario for a specific Alpha of RimWorld](#link-to-a-mod-or-scenario-for-a-specific-alpha-of-rimworld)
+ - [x] [Link a single mod or scenario](#link-a-single-mod-or-scenario)  
+ - [x] [Link multiple mods or scenarios](#link-multiple-mods-or-scenarios)  
+ - [x] [Link multiple results for a mod or scenario](#link-multiple-results-for-a-mod-or-scenario)  
+ - [x] [Link to a mod or scenario for a specific Alpha of RimWorld](#link-to-a-mod-or-scenario-for-a-specific-alpha-of-rimworld)
 
 # Link a single mod or scenario
 ```
