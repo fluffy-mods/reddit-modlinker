@@ -58,16 +58,21 @@ for comment in stream.comments():
         parts.append( formatting.formatResults( request, mods ) )
 
         # add request to our 'analytics' database
+        redditor = comment.author.name
         for mod in mods:
-            database.log_record( comment, mod )
+            database.log_record( redditor, mod )
 
     # get post(s)
     posts = formatting.createPosts( parts )
     for index, post in enumerate( posts ):
         log.debug( "reply %s: \n%s", index, post )
         reply = reddit.handle_ratelimit( comment.reply, post )
+        try: 
+            permalink = reply.permalink()
+        except TypeError:
+            permalink = reply.permalink
         log.info( "replied to %s (%s/%s): https://www.reddit.com%s",
-                  comment.id, index+1, len(posts), reply.permalink() )
+                  comment.id, index+1, len(posts), permalink )
 
     # done!
     log.info( "Succesfully handled comment %s", comment.id )
