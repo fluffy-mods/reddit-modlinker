@@ -2,9 +2,9 @@ version: '2'
 
 networks:
   personal:
-    driver: bridge
-    # external:
-    #   name: srv_personal
+    # driver: bridge
+    external:
+      name: srv_personal
 
 services:
   bot:
