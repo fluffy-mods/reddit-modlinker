@@ -2,9 +2,9 @@ version: '2'
 
 networks:
   personal:
-    # driver: bridge
-    external:
-      name: srv_personal
+    driver: bridge
+    # external:
+    #  name: srv_personal
 
 services:
   bot:
@@ -19,9 +19,11 @@ services:
     networks:
       - personal
     ports:
-      - 3000 #:3000 # local dev
+      - 3000:3000 # local dev
     environment:
       - VIRTUAL_HOST=modlinker-stats.karel-kroeze.nl
       - VIRTUAL_PORT=3000
+    volumes:
+      - ./stats:/app
     env_file:
       - stats/secrets.env

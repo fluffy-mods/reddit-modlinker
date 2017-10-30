@@ -30,7 +30,7 @@ STEAM_WORKSHOP_PARAMS = dict(
 )
 
 # footer text
-FOOTER = "\n\n*****\n^(I'm a bot | ) [^source](https://github.com/FluffierThanThou/reddit-modlinker) ^| [^stats](http://modlinker-stats.herokuapp.com/) ^(| I was made by )[^/u\/FluffierThanThou](/user/FluffierThanThou)"
+FOOTER = "\n\n*****\n^(I'm a bot | ) [^source](https://github.com/FluffierThanThou/reddit-modlinker) ^| [^stats](http://modlinker-stats.karel-kroeze.nl/) ^(| I was made by )[^/u\/FluffierThanThou](/user/FluffierThanThou)"
 
 # request pattern matches
 _regexFlags = re.IGNORECASE + re.MULTILINE # pylint: disable=invalid-name
