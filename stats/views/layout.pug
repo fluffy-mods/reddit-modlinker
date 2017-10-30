@@ -1,0 +1,28 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css')
+    block head
+
+  body
+    nav.navbar.navbar-light.navbar-expand-lg.bg-light  
+      .container
+        a.navbar-brand(href="/") Teddy
+        button.navbar-toggler(type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="true" aria-label="Toggle navigation")
+          span.navbar-toggler-icon
+
+        .collapse.navbar-collapse#navbar-content
+          .navbar-nav.mr-auto
+            if links
+              for href, link in links
+                - style = active === link ? 'active' : ''
+                a.nav-item.nav-link(href=href, class=style)= link
+          if count
+            .navbar-nav
+              span.nav-item.navbar-text #{count} mods linked
+
+    .content 
+      block content

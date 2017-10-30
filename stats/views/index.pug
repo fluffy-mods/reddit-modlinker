@@ -1,0 +1,55 @@
+extends layout
+
+block head
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js")
+
+block content
+  .container
+    h1 Hi There!
+    .row#chartWidth
+      .col-md-12
+        p. 
+          I'm Teddy, a mod-linking robot. It's my live's work to point you towards the mods you're looking for. 
+          Over time, I've also gathered some statistics on what people are looking for, and who's helping them find it. 
+          Use the links in the top navbar to dive into these statistics.
+        p.
+          On the rest of this page, you can see the currently most linked mods, and some links to the code that makes me (and this website) work.
+      .col-md-3.mt-3.text-center
+        a.btn.btn-outline-primary(href="https://reddit.com/u/rimworld-modlinker") Teddy's profile
+      .col-md-3.mt-3.text-center
+        a.btn.btn-outline-primary(href="https://github.com/FluffierThanThou/reddit-modlinker/blob/master/COMMANDS.MD") Talking to Teddy
+      .col-md-3.mt-3.text-center
+        a.btn.btn-outline-primary(href="https://github.com/FluffierThanThou/reddit-modlinker") Teddy's source code
+      .col-md-3.mt-3.text-center
+        a.btn.btn-outline-primary(href="https://github.com/FluffierThanThou/modlinker-stats") Website source code
+      .col-xs-12.mt-5
+        h2 Most linked mods
+      .col-xs-12
+        canvas#topMods( width=800, height=500 )
+
+  script.
+    var ctx = document.getElementById("topMods");
+    var width = document.getElementById("chartWidth").offsetWidth;
+    var myChart = new Chart(ctx, {
+      type: 'horizontalBar',
+      data: {
+        labels: !{JSON.stringify(mods.names)},
+        datasets: [{
+            label: '# of links',
+            data: !{JSON.stringify(mods.counts)},
+            borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            xAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+      }
+    })
+    myChart.canvas.width = width;
