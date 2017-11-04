@@ -9,6 +9,7 @@ networks:
 services:
   bot:
     build: bot
+    restart: on-failure
     networks:
       - personal
     env_file:
@@ -16,6 +17,7 @@ services:
   
   stats: 
     build: stats
+    restart: on-failure
     networks:
       - personal
     ports:
