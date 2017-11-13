@@ -27,6 +27,14 @@ DB.prototype.count = function(){
     return this.db.collection( "requests_collection" ).count();
 }
 
+DB.prototype.latestLinks = function( limit = 10 ){
+    return this.db.collection( "posts" )
+        .find({})
+        .sort({'timestamp': -1})
+        .limit(10)
+        .toArray()
+}
+
 DB.prototype.topMods = function( limit = 10, table = true ){
     return this.db.collection( "requests_collection" ).aggregate([
         {

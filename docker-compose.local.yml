@@ -24,6 +24,6 @@ services:
       - VIRTUAL_HOST=modlinker-stats.karel-kroeze.nl
       - VIRTUAL_PORT=3000
     volumes:
-      - ./stats:/app
+      - ./stats:/app/stats
     env_file:
       - stats/secrets.env

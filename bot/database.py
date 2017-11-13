@@ -36,13 +36,14 @@ def log_pattern(redditor, pattern):
     }
     log(record, PATTERNS)
 
-def log_post(redditor, post, permalink):
+def log_post(redditor, post, submission, permalink):
     '''
     Log a post we made to the database.
     '''
     record = {
         "requestingRedditor": redditor,
         "post": post,
+        "submission": submission,
         "permalink": permalink
     }
     log(record, POSTS)

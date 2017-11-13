@@ -80,7 +80,7 @@ for comment in stream.comments():
             permalink = reply.permalink()
         except TypeError:
             permalink = reply.permalink
-        database.log_post(redditor, post, permalink)
+        database.log_post(redditor, post, reply.submission.title, permalink)
         log.info("replied to %s (%s/%s): https://www.reddit.com%s",
                  comment.id, index+1, len(posts), permalink)
 

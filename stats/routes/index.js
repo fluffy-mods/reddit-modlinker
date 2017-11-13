@@ -8,17 +8,25 @@ let links = {
 }
 
 router.get('/', function( req, res, next){
-    // get top 10 mods, and overall count
+    // get top 20 mods, and overall count
     Promise.all([
-        req.db.topMods( 10, false ).then( mods => {
+        req.db.topMods( 20, false ).then( mods => {
             return {
                 names: mods.map( mod => mod._id ),
                 counts: mods.map( mod => mod.count )
             }
         }),
-        req.db.count()
+        req.db.count(),
+        req.db.latestLinks()
     ]).then( resources => {
-            res.render( "index", { links: links, title: "Teddy :: Mod linking bot", mods: resources[0], count: resources[1] } )
+            res.render( "index", { 
+                links: links,
+                title: "Teddy :: Mod linking bot",
+                mods: resources[0],
+                count: resources[1], 
+                posts: resources[2],
+                moment: require('moment')
+            })
         }) 
 })
 

@@ -6,7 +6,7 @@ block head
 block content
   .container
     h1 Hi There!
-    .row#chartWidth
+    .row
       .col-md-12
         p. 
           I'm Teddy, a mod-linking robot. It's my live's work to point you towards the mods you're looking for. 
@@ -22,10 +22,19 @@ block content
         a.btn.btn-outline-primary(href="https://github.com/FluffierThanThou/reddit-modlinker/tree/master/bot") Teddy's source code
       .col-md-3.mt-3.text-center
         a.btn.btn-outline-primary(href="https://github.com/FluffierThanThou/reddit-modlinker/tree/master/stats") Website source code
-      .col-xs-12.mt-5
+      .col-xs-12.col-sm-6.mt-5
         h2 Most linked mods
-      .col-xs-12
-        canvas#topMods( width=800, height=500 )
+        div#chartWidth(style="width: 100%")
+          canvas#topMods( width=500, height=500 )
+      .col-xs-12.col-sm-6.mt-5
+        h2 Latest posts
+        table
+          each post in posts
+            .post #{moment(post.timestamp).fromNow()} by  
+              a(href="//reddit.com/u/"+post.requestingRedditor)= post.requestingRedditor
+              |  in 
+              a(href="//reddit.com"+post.permalink)= post.submission || post.permalink
+
 
   script.
     var ctx = document.getElementById("topMods");

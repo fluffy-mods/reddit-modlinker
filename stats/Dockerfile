@@ -5,8 +5,9 @@ RUN mkdir /app
 WORKDIR /app
 
 # set up packages
+RUN npm install -g yarn
 ADD package.json /app
-RUN npm install
+RUN yarn install
 
 # copy over the rest
 ADD . /app
