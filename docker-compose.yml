@@ -23,6 +23,8 @@ services:
     ports:
       - 3000 #:3000 # local dev
     environment:
+      - LETSENCRYPT_HOST=modlinker-stats.karel-kroeze.nl
+      - LETSENCRYPT_EMAIL=karel.kroeze@gmail.com
       - VIRTUAL_HOST=modlinker-stats.karel-kroeze.nl
       - VIRTUAL_PORT=3000
     env_file:

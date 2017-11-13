@@ -13,37 +13,43 @@ import database
 from common import REDDIT, REGEXES
 
 # set up logging
-logging.basicConfig( format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO )
+logging.basicConfig(format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 log = logging.getLogger(__name__) # pylint: disable=invalid-name
 
 # start the bot
 # get a comment stream
-stream = reddit.getStream( REDDIT['subreddits']) # pylint: disable=invalid-name
+stream = reddit.getStream(REDDIT['subreddits']) # pylint: disable=invalid-name
 
 # consume new comments for ever and ever
 for comment in stream.comments():
-    log.info( "new comment :: %s", comment.id )
-    log.debug( "%s", comment.body.encode( 'ascii', 'replace' ) )
+    redditor = comment.author.name
+    log.info("new comment :: %s", comment.id)
+    log.debug("%s", comment.body.encode('ascii', 'replace'))
 
     # skip if made by me
-    if comment.author.name == REDDIT['username']:
-        log.info( "comment made by me, skipping" )
+    if redditor == REDDIT['username']:
+        log.info("comment made by me, skipping")
         continue
 
     # for all regexes, get all results, and for all results, get all mod requests.
-    requests = [ request
-                 for regex in REGEXES
-                 for query in regex.findall( comment.body )
-                 for request in workshop.ModRequest.fromQuery( query ) ]
+    requests = []
+    patterns = []
+    for regex in REGEXES:
+        for query in regex['regex'].findall(comment.body):
+            # take note of the query used
+            patterns.append(regex['description'])
+
+            for request in workshop.ModRequest.fromQuery(query):
+                requests.append(request)
 
     # skip if there are no requests for this comments
     if not requests:
-        log.info( "no requests, skipping" )
+        log.info("no requests, skipping")
         continue
 
     # do a final check to see if we haven't already commented to this request
-    if reddit.hasReplyBy( comment, REDDIT['username'] ):
-        log.info( "already replied to comment, skipping" )
+    if reddit.hasReplyBy(comment, REDDIT['username']):
+        log.info("already replied to comment, skipping")
         continue
 
     # get a queue ready for results
@@ -52,27 +58,31 @@ for comment in stream.comments():
     # for each search term;
     for request in requests:
         # get a list of results
-        mods = workshop.search( request )
+        mods = workshop.search(request)
 
         # generate a formatted result table/line, and add it to the queue
-        parts.append( formatting.formatResults( request, mods ) )
+        parts.append(formatting.formatResults(request, mods))
 
-        # add request to our 'analytics' database
-        redditor = comment.author.name
+        # add mod to our 'analytics' database
         for mod in mods:
-            database.log_record( redditor, mod )
+            database.log_mod(redditor, mod)
+
+    # add patterns to our database
+    for pattern in patterns:
+        database.log_pattern(redditor, pattern)
 
     # get post(s)
-    posts = formatting.createPosts( parts )
-    for index, post in enumerate( posts ):
-        log.debug( "reply %s: \n%s", index, post )
-        reply = reddit.handle_ratelimit( comment.reply, post )
-        try: 
+    posts = formatting.createPosts(parts)
+    for index, post in enumerate(posts):
+        log.debug("reply %s: \n%s", index, post)
+        reply = reddit.handle_ratelimit(comment.reply, post)
+        try:
             permalink = reply.permalink()
         except TypeError:
             permalink = reply.permalink
-        log.info( "replied to %s (%s/%s): https://www.reddit.com%s",
-                  comment.id, index+1, len(posts), permalink )
+        database.log_post(redditor, post, permalink)
+        log.info("replied to %s (%s/%s): https://www.reddit.com%s",
+                 comment.id, index+1, len(posts), permalink)
 
     # done!
-    log.info( "Succesfully handled comment %s", comment.id )
+    log.info("Succesfully handled comment %s", comment.id)
