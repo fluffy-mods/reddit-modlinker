@@ -27,7 +27,5 @@ services:
       - LETSENCRYPT_EMAIL=karel.kroeze@gmail.com
       - VIRTUAL_HOST=modlinker-stats.karel-kroeze.nl
       - VIRTUAL_PORT=3000
-    volumes:
-      - ./stats:/app
     env_file:
       - stats/secrets.env
