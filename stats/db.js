@@ -31,7 +31,7 @@ DB.prototype.latestLinks = function( limit = 10 ){
     return this.db.collection( "posts" )
         .find({})
         .sort({'timestamp': -1})
-        .limit(10)
+        .limit( limit )
         .toArray()
 }
 

@@ -13,6 +13,7 @@ services:
       - personal
     env_file:
       - bot/secrets.env
+      - bot/local.env
   
   stats: 
     build: stats
@@ -20,10 +21,7 @@ services:
       - personal
     ports:
       - 3000:3000 # local dev
-    environment:
-      - VIRTUAL_HOST=modlinker-stats.karel-kroeze.nl
-      - VIRTUAL_PORT=3000
     volumes:
-      - ./stats:/app/stats
+      - ./stats:/app
     env_file:
       - stats/secrets.env

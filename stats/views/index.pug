@@ -28,12 +28,15 @@ block content
           canvas#topMods( width=500, height=500 )
       .col-xs-12.col-sm-6.mt-5
         h2 Latest posts
-        table
-          each post in posts
-            .post #{moment(post.timestamp).fromNow()} by  
-              a(href="//reddit.com/u/"+post.requestingRedditor)= post.requestingRedditor
-              |  in 
-              a(href="//reddit.com"+post.permalink)= post.submission || post.permalink
+        each post in posts
+          .post 
+            a(href="//reddit.com"+post.permalink)= post.submission || post.permalink
+            |  for 
+            a(href="//reddit.com/u/"+post.requestingRedditor)= post.requestingRedditor
+            |  
+            span.timestamp #{moment(post.timestamp).fromNow()}
+            
+
 
 
   script.

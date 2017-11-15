@@ -8,7 +8,6 @@ let links = {
 }
 
 router.get('/', function( req, res, next){
-    // get top 20 mods, and overall count
     Promise.all([
         req.db.topMods( 20, false ).then( mods => {
             return {
@@ -17,7 +16,7 @@ router.get('/', function( req, res, next){
             }
         }),
         req.db.count(),
-        req.db.latestLinks()
+        req.db.latestLinks( 20 )
     ]).then( resources => {
             res.render( "index", { 
                 links: links,

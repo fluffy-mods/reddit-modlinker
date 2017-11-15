@@ -10,3 +10,12 @@ a {
 .content {
   margin-top: 50px;
 }
+
+.timestamp {
+  font-size: 66%;
+  color: #333;
+  background-color: rgba( 0,0,0,.2);
+  border-radius: 4px;
+  padding: 3px;
+  display: inline-block;
+}

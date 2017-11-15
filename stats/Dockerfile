@@ -6,6 +6,7 @@ WORKDIR /app
 
 # set up packages
 RUN npm install -g yarn
+RUN yarn global add forever
 ADD package.json /app
 RUN yarn install
 

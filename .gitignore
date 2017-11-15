@@ -3,5 +3,6 @@ comments.txt
 *.pyc
 pylint_messages.txt
 .vscode
-secrets.env
+*.env
 node_modules
+*.log
