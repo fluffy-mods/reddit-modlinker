@@ -54,11 +54,12 @@ def _tagsToAlpha( tags ):
         match = _tag_regex.match( tag['tag'] )
         log.debug( "tag regex: %s, %s", tag['tag'], match )
         if match:
-            version = match.group(1)
+            version = int(match.group(1))
+            print version, type(version)
             if version >= 18:
-                return "B" + version
+                return "B" + str(version)
             else:
-                return "A" + version    
+                return "A" + str(version)
 
 _alpha_regex = re.compile( r"\b(?:A|B|Alpha|Beta ?)?(\d{2})\b" )
 def alphaToTag( alphastring ):
@@ -250,7 +251,7 @@ if __name__ == '__main__':
     ]:
         print "\t" + query
         for regex in REGEXES:
-            for match in regex.findall( query ):
+            for match in regex['regex'].findall( query ):
                 print "\t\t", match
                 for request in ModRequest.fromQuery( match ):
                     print "\t\t\t", request
