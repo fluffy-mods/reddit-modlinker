@@ -54,9 +54,13 @@ def _tagsToAlpha( tags ):
         match = _tag_regex.match( tag['tag'] )
         log.debug( "tag regex: %s, %s", tag['tag'], match )
         if match:
-            return "A" + match.group(1)    
+            version = match.group(1)
+            if version >= 18:
+                return "B" + version
+            else:
+                return "A" + version    
 
-_alpha_regex = re.compile( r"\b(?:A|Alpha ?)?(\d{2})\b" )
+_alpha_regex = re.compile( r"\b(?:A|B|Alpha|Beta ?)?(\d{2})\b" )
 def alphaToTag( alphastring ):
     match = _alpha_regex.search( str( alphastring ) )
     log.debug( "alpha regex: %s, %s", str( alphastring ), match )
@@ -205,6 +209,10 @@ if __name__ == '__main__':
 
     print "testing query recognition"
     for query in [
+        "linkB18mod: Better",
+        "link [B18] mod: Expanded",
+        "linkA18mod: Extended",
+        "link beta 18 mod: I'm running out of test query ideas",
         "Link Mod: High Caliber",
         "there's an alpha 11 mod for that: blurb",
         "there's mods for that: josephine, peter, jasper",

@@ -42,9 +42,9 @@ REGEXES = [
     # link to a single mod, with a single keyword
     # e.g. `linkmod: Colony Manager` does a steam search for "Colony Manager" and shows the top result
     # 1; alpha?, 2; mod|scenario, 3; query
-    dict(regex=re.compile(r".*?there's an? ?(?:\[?(?:a|alpha )(\d{2})\]?)? (mod|scenario) for that: (.*?)(?:,|;|:|\.|$)", _regexFlags), # https://regexr.com/3gqbv
+    dict(regex=re.compile(r".*?there's an? ?(?:\[?(?:a|b|alpha|beta )(\d{2})\]?)? (mod|scenario) for that: (.*?)(?:,|;|:|\.|$)", _regexFlags), # https://regexr.com/3gqbv
          description="there's a mod for that"),
-    dict(regex=re.compile(r".*?link ?(?:\[?(?:a|alpha )(\d{2})\]?)? ?(mod|scenario):? (.*?)(?:,|;|:|\.|$)", _regexFlags), # https://regexr.com/3gqc2
+    dict(regex=re.compile(r".*?link ?(?:\[?(?:a|b|alpha|beta )(\d{2})\]?)? ?(mod|scenario):? (.*?)(?:,|;|:|\.|$)", _regexFlags), # https://regexr.com/3gqc2
          description="linkmod"),
 
     # link to a number of mods, for each of a number of keywords
@@ -52,9 +52,9 @@ REGEXES = [
     # "manager", "tab" and "fluffy" separately,
     # and shows the top 4 results for each.
     # 1; count?, 2; alpha?, 3; mod|scenario, 4; query
-    dict(regex=re.compile(r".*?link\s?(\d*)? ?(?:\[?(?:a|alpha )(\d{2})\]?)? ?(mod|scenario)s:? (.*?)(?:;|:|\.|$)", _regexFlags), # https://regex101.com/r/bS5mG3/7
+    dict(regex=re.compile(r".*?link\s?(\d*)? ?(?:\[?(?:a|b|alpha|beta )(\d{2})\]?)? ?(mod|scenario)s:? (.*?)(?:;|:|\.|$)", _regexFlags), # https://regex101.com/r/bS5mG3/7
          description="there are mods for that"),
-    dict(regex=re.compile(r".*?there(?:'s| are) (\d*)? ?(?:\[?(?:a|alpha )(\d{2})\]?)? ?(mod|scenario)s? for that:? (.*?)(?:;|:|\.|$)", _regexFlags), # https://regex101.com/r/bS5mG3/8
+    dict(regex=re.compile(r".*?there(?:'s| are) (\d*)? ?(?:\[?(?:a|b|alpha|beta )(\d{2})\]?)? ?(mod|scenario)s? for that:? (.*?)(?:;|:|\.|$)", _regexFlags), # https://regex101.com/r/bS5mG3/8
          description="linkmods")
     # note that lists are extracted as a block, and further split up in the ModRequest factories.
 ]

@@ -24,7 +24,7 @@ def formatResults(request, mods):
         result = formatMod(mod, False)
         result += "\n\n^(Results for) [^(`{request.query}`)]({request_url})^(. I'm showing you the top result, there may be more.)".format(**info)
     else:
-        result = "Sorry, but a search for [`{request.query}`]({request_url}) gave no results.".format(**info)
+        result = "Sorry, but a search for [`{request.query}`]({request_url}) gave no results. [Looking for A17 mods?](https://github.com/FluffierThanThou/reddit-modlinker/blob/master/bot/COMMANDS.MD#link-to-a-mod-or-scenario-for-a-specific-alpha-of-rimworld)".format(**info)
     log.debug(result)
     return result
 
