@@ -61,7 +61,7 @@ for comment in stream.comments():
         mods = workshop.search(request)
 
         # generate a formatted result table/line, and add it to the queue
-        parts.append(formatting.formatResults(request, mods))
+        parts.append( formatting.formatResults(request, mods) )
 
         # add mod to our 'analytics' database
         for mod in mods:

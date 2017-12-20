@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import logging
 from common import MAX_LENGTH, FOOTER
 
