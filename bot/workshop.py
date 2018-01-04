@@ -55,7 +55,6 @@ def _tagsToAlpha( tags ):
         log.debug( "tag regex: %s, %s", tag['tag'], match )
         if match:
             version = int(match.group(1))
-            print version, type(version)
             if version >= 18:
                 return "B" + str(version)
             else:
@@ -107,10 +106,10 @@ def search( query, count = 1, tags = [] ):
 
 class Mod:
     def __init__( self, mod, author ):
-        self.title = mod['title'].encode("utf-8", "replace")
-        self.url = _mod_url.format( mod['publishedfileid'] ).encode("utf-8", "replace")
-        self.authorName = author['personaname'].encode("utf-8", "replace")
-        self.authorUrl = author['profileurl'].encode("utf-8", "replace") + "myworkshopfiles/?appid=" + str( STEAM_WORKSHOP_PARAMS['appid'] )
+        self.title = mod['title']
+        self.url = _mod_url.format( mod['publishedfileid'] )
+        self.authorName = author['personaname']
+        self.authorUrl = author['profileurl'] + "myworkshopfiles/?appid=" + str( STEAM_WORKSHOP_PARAMS['appid'] )
         self.alpha = _tagsToAlpha( mod['tags'] )
                 
     def __repr__( self ):
@@ -138,7 +137,7 @@ class ModRequest:
     Simple wrapper for search term + count
     '''
     def __init__( self, mod, query, alpha, count = 1 ):
-        if isinstance( count, basestring ):
+        if isinstance( count, str ):
             count = int( count )
         if count > MAX_RESULTS:
             count = MAX_RESULTS
@@ -164,14 +163,14 @@ class ModRequest:
         params = dict( STEAM_WORKSHOP_PARAMS )
         params['requiredtags[]'] = self.tags
         params['searchtext'] = self.query
-        return STEAM_WORKSHOP_URL.format( params = urllib.urlencode( params, True ) )
+        return STEAM_WORKSHOP_URL.format( params = urllib.parse.urlencode( params, True ) )
 
     @classmethod
     def fromQuery( cls, request ):
         mod = True
         count = 1
 
-        if isinstance( request, basestring ):
+        if isinstance( request, str ):
             return [ cls( True, request ) ]
 
         if not isinstance( request, tuple ) or len(request) == 2:
@@ -200,16 +199,17 @@ class ModRequest:
         try:
             return "Request for {} [{}] matching {}".format( self.count, ", ".join( self.tags), self.query )
         except:
-            print vars(self)
+            print(vars(self))
 
 if __name__ == '__main__':
     logging.basicConfig( format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO )
-    print "testing steam API"
+    print("testing steam API")
     for mod in search( "FluffierThanThou", 10 ):
-        print "\t", mod
+        print("\t", mod)
 
-    print "testing query recognition"
+    print("testing query recognition")
     for query in [
+        'linkmod: ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ, unicode exists.',
         "linkB18mod: Better",
         "link [B18] mod: Expanded",
         "linkA18mod: Extended",
@@ -249,13 +249,13 @@ if __name__ == '__main__':
         "linkmod:Expanded Prosthetics",
         "linkmod:"
     ]:
-        print "\t" + query
+        print("\t" + query)
         for regex in REGEXES:
             for match in regex['regex'].findall( query ):
-                print "\t\t", match
+                print("\t\t", match)
                 for request in ModRequest.fromQuery( match ):
-                    print "\t\t\t", request
+                    print("\t\t\t", request)
                     for result in search( request ):
-                        print "\t\t\t\t", result
-        raw_input("Press Enter to continue...")
+                        print("\t\t\t\t", result)
+        input("Press Enter to continue...")
 

@@ -61,12 +61,6 @@ def log(record, collection):
         LOG.error("%s in %s: .\n%s", type(err), collection, err)
 
 if __name__ == '__main__':
-    for request in REQUESTS.find():
-        print request
-    for pattern in PATTERNS.find():
-        print pattern
-    for post in POSTS.find():
-        print post
-    print REQUESTS.count(), "requests logged"
-    print PATTERNS.count(), "patterns logged"
-    print POSTS.count(), "posts logged"
+    print(REQUESTS.count(), "requests logged")
+    print(PATTERNS.count(), "patterns logged")
+    print(POSTS.count(), "posts logged")
