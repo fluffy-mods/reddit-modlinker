@@ -13,7 +13,7 @@ import database
 from common import REDDIT, REGEXES
 
 # set up logging
-logging.basicConfig(format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(module)s :: %(levelname)s :: %(message)s', level=logging.DEBUG)
 log = logging.getLogger(__name__) # pylint: disable=invalid-name
 
 # start the bot
@@ -58,6 +58,7 @@ for comment in stream.comments():
     # for each search term;
     for request in requests:
         # get a list of results
+        log.debug( request )
         mods = workshop.search(request)
 
         # generate a formatted result table/line, and add it to the queue
