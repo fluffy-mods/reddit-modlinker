@@ -17,7 +17,7 @@ _params = {
     "search_text": "", # required
     "requiredtags": [], # required
     "numperpage": 1, # optional
-
+    
     # static 'settings'
     "query_type": 3, # required, this corresponds to the 'relevance' search mode.
     "return_tags": True, # required, we want to get tags back so we can show the Alpha number.
@@ -27,6 +27,7 @@ _params = {
     "cache_max_age_seconds": 120, # optional
 
     # stuff we don't use, but the API requires
+    "return_details": True,
     "page": 1, # required
     "child_publishedfileid": "", # required
     "days": 7, # required
@@ -85,7 +86,7 @@ def search( query, count = 1, tags = [] ):
         _params['requiredtags'] = tags
 
     # raw response
-    log.debug( "search for %s files matching '%s' with tags [%s]", _params['search_text'], _params['numperpage'], ", ".join(_params['requiredtags']))
+    log.debug( "search for %s files matching '%s' with tags [%s]", _params['numperpage'], _params['search_text'], ", ".join(_params['requiredtags']))
     raw_mods = _api.IPublishedFileService.QueryFiles( **_params )
 
     # get list of mods

@@ -59,7 +59,7 @@ for comment in stream.comments():
     for request in requests:
         # get a list of results
         log.debug( request )
-        mods = workshop.search(request)
+        mods = workshop.search( request )
 
         # generate a formatted result table/line, and add it to the queue
         parts.append( formatting.formatResults(request, mods) )
