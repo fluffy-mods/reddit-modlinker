@@ -28,6 +28,7 @@ _params = {
 
     # stuff we don't use, but the API requires
     "return_details": True,
+    "strip_description_bbcode": True,
     "page": 1, # required
     "child_publishedfileid": "", # required
     "days": 7, # required
