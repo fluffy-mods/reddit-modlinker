@@ -1,3 +1,4 @@
+![work? I gave up after 5 attempts](work.jpg)  
 Teddy is a bot, so his vocabulary is a bit limited. I've managed to teach him commands for the following;
 
  - [x] [Link a single mod or scenario](#link-a-single-mod-or-scenario)  
