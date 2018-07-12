@@ -5,12 +5,12 @@ the reddit and workshop modules where needed.
 import logging
 from collections import deque
 
-# our wrappers around the reddit and steam apis
+from commands import ModRequest
 import formatting
 import reddit
 import workshop
 import database
-from common import REDDIT, REGEXES
+from common import REDDIT
 
 # set up logging
 logging.basicConfig(format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO)
@@ -30,17 +30,11 @@ for comment in stream.comments():
     if redditor == REDDIT['username']:
         log.info("comment made by me, skipping")
         continue
-
-    # for all regexes, get all results, and for all results, get all mod requests.
+    
+    # get requests for this post
     requests = []
-    patterns = []
-    for regex in REGEXES:
-        for query in regex['regex'].findall(comment.body):
-            # take note of the query used
-            patterns.append(regex['description'])
-
-            for request in workshop.ModRequest.fromQuery(query):
-                requests.append(request)
+    for request in ModRequest.fromPost(comment.body):
+        requests.append(request)
 
     # skip if there are no requests for this comments
     if not requests:
@@ -58,7 +52,8 @@ for comment in stream.comments():
     # for each search term;
     for request in requests:
         # get a list of results
-        mods = workshop.search(request)
+        log.debug( request )
+        mods = workshop.search( request )
 
         # generate a formatted result table/line, and add it to the queue
         parts.append( formatting.formatResults(request, mods) )
@@ -66,10 +61,6 @@ for comment in stream.comments():
         # add mod to our 'analytics' database
         for mod in mods:
             database.log_mod(redditor, mod)
-
-    # add patterns to our database
-    for pattern in patterns:
-        database.log_pattern(redditor, pattern)
 
     # get post(s)
     posts = formatting.createPosts(parts)

@@ -29,7 +29,7 @@ def formatResults(request, mods):
     return result
 
 def formatMod(mod, tabular=False):
-    print_alpha = not mod.nameIncludesAlpha()
+    print_alpha = not mod.nameIncludesVersion()
     if tabular:
         if print_alpha:
             return '[{alpha}] [{title}]({url}) | by [{authorName}]({authorUrl})\n'.format(**vars(mod))

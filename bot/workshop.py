@@ -1,15 +1,14 @@
 import logging
 import os
 import re
-import urllib
 
 from steam import WebAPI
-
-from common import CURRENT_ALPHA, MAX_RESULTS, REGEXES, STEAM, STEAM_WORKSHOP_URL, STEAM_WORKSHOP_PARAMS
+from common import EPSILON, STEAM, STEAM_WORKSHOP_URL, STEAM_WORKSHOP_PARAMS
+from commands import ModRequest
 
 log = logging.getLogger(__name__)
 
-_api = WebAPI( key = STEAM['key'] )
+_api = WebAPI(key=STEAM['key'])
 _mod_url = "https://steamcommunity.com/sharedfiles/filedetails/?id={}"
 
 _params = {
@@ -27,6 +26,8 @@ _params = {
     "cache_max_age_seconds": 120, # optional
 
     # stuff we don't use, but the API requires
+    "return_details": True,
+    "strip_description_bbcode": True,
     "page": 1, # required
     "child_publishedfileid": "", # required
     "days": 7, # required
@@ -48,32 +49,27 @@ _params = {
     "totalonly": False, # required
 }
 
-_tag_regex = re.compile( r"\d\.(\d{2})" )
-def _tagsToAlpha( tags ):
+def tagsToAlpha(tags):
+    # we get Mod/Scenario, and a version tag. 
+    # Just loop over tags and return the first one that doesn't raise a ValueError...
     for tag in tags:
-        match = _tag_regex.match( tag['tag'] )
-        log.debug( "tag regex: %s, %s", tag['tag'], match )
-        if match:
-            version = int(match.group(1))
-            if version >= 18:
-                return "B" + str(version)
-            else:
-                return "A" + str(version)
+        try:
+            tag = float(tag['tag'])
+            if tag >= 1 - EPSILON:
+                return str(tag)
+            if tag >= 0.18 - EPSILON:
+                return 'B{:.0f}'.format(tag*100)
+            return 'A{:.0f}'.format(tag*100)
+        except ValueError:
+            continue
 
-_alpha_regex = re.compile( r"\b(?:A|B|Alpha|Beta ?)?(\d{2})\b" )
-def alphaToTag( alphastring ):
-    match = _alpha_regex.search( str( alphastring ) )
-    log.debug( "alpha regex: %s, %s", str( alphastring ), match )
-    if match:
-        return "0." + match.group(1)
-
-def _findAuthor( mod, authors):
+def _findAuthor(mod, authors):
     for author in authors:
         if author['steamid'] == mod['creator']:
             return author 
-    log.error( "no author found for mod %s", mod['title'].encode("ascii", "replace"))
+    log.error("no author found for mod %s", mod['title'].encode("ascii", "replace"))
 
-def search( query, count = 1, tags = [] ):
+def search(query, count = 1, tags = []):
     # allow calling with a ModRequest, as well as directly
     try:
         _params['search_text'] = query.query
@@ -85,46 +81,49 @@ def search( query, count = 1, tags = [] ):
         _params['requiredtags'] = tags
 
     # raw response
-    log.debug( "search for %s files matching '%s' with tags [%s]", _params['search_text'], _params['numperpage'], ", ".join(_params['requiredtags']))
-    raw_mods = _api.IPublishedFileService.QueryFiles( **_params )
+    log.debug("search for %s files matching '%s' with tags [%s]", _params['numperpage'], _params['search_text'], ", ".join(_params['requiredtags']))
+    raw_mods = _api.IPublishedFileService.QueryFiles(**_params)
 
     # get list of mods
     try:
         mods = raw_mods['response']['publishedfiledetails']
-        log.info( "found %s results for %s files matching '%s' with tags [%s]", len(mods), _params['numperpage'], _params['search_text'], ", ".join(_params['requiredtags']))
+        log.info("found %s results for %s files matching '%s' with tags [%s]", len(mods), _params['numperpage'], _params['search_text'], ", ".join(_params['requiredtags']))
     except:
-        log.info( "found NO RESULTS for %s files matching '%s' with tags [%s]", _params['numperpage'], _params['search_text'], ", ".join(_params['requiredtags']))      
+        log.info("found NO RESULTS for %s files matching '%s' with tags [%s]", _params['numperpage'], _params['search_text'], ", ".join(_params['requiredtags']))      
         return []
     
     # get list of authors
     authorIds = ",".join([ mod['creator'] for mod in mods ])
-    raw_authors = _api.ISteamUser.GetPlayerSummaries( steamids = authorIds )
+    raw_authors = _api.ISteamUser.GetPlayerSummaries(steamids = authorIds)
     authors = raw_authors['response']['players']
 
     # generate a list of Mod objects
-    return [ Mod( mod, _findAuthor( mod, authors ) ) for mod in mods ]
+    return [ Mod(mod, _findAuthor(mod, authors)) for mod in mods ]
 
 class Mod:
-    def __init__( self, mod, author ):
-        self.title = mod['title']
-        self.url = _mod_url.format( mod['publishedfileid'] )
-        self.authorName = author['personaname']
-        self.authorUrl = author['profileurl'] + "myworkshopfiles/?appid=" + str( STEAM_WORKSHOP_PARAMS['appid'] )
-        self.alpha = _tagsToAlpha( mod['tags'] )
-                
-    def __repr__( self ):
-        return "[{}] {} by {} ({}, {})".format( self.alpha, self.title, self.authorName, self.url, self.authorUrl ) 
-    
-    def __len__( self ):
-        return 1
+    VERSION_REGEX = re.compile(r"\[?([ab]?\d{2}|v?1\.\d)\]?", re.IGNORECASE) # https://regex101.com/r/ICiCxq/2
 
-    def nameIncludesAlpha( self ):
-        match = _alpha_regex.search( self.title )
+    def __init__(self, mod, author):
+        self.title = mod['title']
+        self.url = _mod_url.format(mod['publishedfileid'])
+        self.authorName = author['personaname']
+        self.authorUrl = author['profileurl'] + "myworkshopfiles/?appid=" + str(STEAM_WORKSHOP_PARAMS['appid'])
+        self.alpha = tagsToAlpha(mod['tags'])
+                
+    def __repr__(self):
+        return "[{}] {} by {} ({}, {})".format(self.alpha, self.title, self.authorName, self.url, self.authorUrl) 
+    
+    def __len__(self):
+        return 1 
+
+    # note that this regex is hardcoded for 1.x versions, as I don't want to make it too confused to a mod giving itself an x.x version.
+    def nameIncludesVersion(self):
+        match = Mod.VERSION_REGEX.search(self.title)
         if match:
             return True
         return False
 
-    def toObject( self ):
+    def toObject(self):
         return {
             "title": self.title,
             "url": self.url,
@@ -132,80 +131,11 @@ class Mod:
             "authorUrl": self.authorUrl
         }
 
-class ModRequest:
-    '''
-    Simple wrapper for search term + count
-    '''
-    def __init__( self, mod, query, alpha, count = 1 ):
-        if isinstance( count, str ):
-            count = int( count )
-        if count > MAX_RESULTS:
-            count = MAX_RESULTS
-        self.mod = mod
-        self.query = query
-        self.count = count
-        self.tags = []
-        if alpha:
-            alpha_tag = alphaToTag( alpha )
-            if alpha_tag:
-                self.tags.append( alpha_tag )
-            else:
-                log.error( "Failed to get alpha tag from string: %s", alpha )
-        else: 
-            self.tags.append( CURRENT_ALPHA )
-
-        if self.mod:
-            self.tags.append( "Mod" )
-        else: 
-            self.tags.append( "Scenario" )
-
-    def getUrl( self ):
-        params = dict( STEAM_WORKSHOP_PARAMS )
-        params['requiredtags[]'] = self.tags
-        params['searchtext'] = self.query
-        return STEAM_WORKSHOP_URL.format( params = urllib.parse.urlencode( params, True ) )
-
-    @classmethod
-    def fromQuery( cls, request ):
-        mod = True
-        count = 1
-
-        if isinstance( request, str ):
-            return [ cls( True, request ) ]
-
-        if not isinstance( request, tuple ) or len(request) == 2:
-            log.error( "bad request: %s", request )
-            return []
-
-        # e.g. link{0: A17}{1: mod|scenario}: {2: query string}
-        if len(request) == 3:
-            if not request[2]:
-                log.warning( "empty query" )
-                return []
-            mod = request[1].lower() == "mod"
-            return [ cls( mod, request[2], request[0] ) ]
-
-        # e.g. link{0: count}{1: A17}{2: mod|scenario}s: {2: query string}
-        if len(request) == 4:
-            count = request[0] if request[0] else 1
-            mod = request[2].lower() == "mod"
-            parts = re.split( r',', request[3] )
-            return [ cls( mod, part.strip(), request[1], count ) for part in parts if part.strip() ]
-        
-        log.error( "bad request: %s", request )
-        return []
-
-    def __repr__( self ):
-        try:
-            return "Request for {} [{}] matching {}".format( self.count, ", ".join( self.tags), self.query )
-        except:
-            print(vars(self))
-
 if __name__ == '__main__':
-    logging.basicConfig( format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO )
+    logging.basicConfig(format='%(module)s :: %(levelname)s :: %(message)s', level=logging.ERROR)
     print("testing steam API")
-    for mod in search( "FluffierThanThou", 10 ):
-        print("\t", mod)
+    for mod in search("FluffierThanThou", 10):
+        print("\t" + str(mod))
 
     print("testing query recognition")
     for query in [
@@ -247,15 +177,26 @@ if __name__ == '__main__':
         "linkmod:Expanded Prosthetics",
         "linkmod :Expanded Prosthetics",
         "linkmod:Expanded Prosthetics",
-        "linkmod:"
+        "linkmod:",
+        "there are 10 v1.0 mods for that: some text.",
+        "there are 1.0 mods for that: some more text.",
+        "there are version 2.0 scenarios for that: probably not",
+        "link 1.0 mod: awesome sauce!",
+        "link v2.2 mod: totes!",
+        "there's a 1.0 mod for that: Peter",
+        "there's a v1.0 mod for that: Bossman.",
+        "there's a version 1.0 mod for that: Peter",
+        "some text (oh by the way, there's a mod for that: Stuff) some more text",
+        "link 4 v1.0 mods: peter",
+        "link 1.0 mods: tommy!",
+        "linkB18mods: tommy!",
+        "link12B18mods: tommies",
+        "there are multiple requests in this post. link20mods: fluffierthanthou. link20v1.0mods: mod"
     ]:
         print("\t" + query)
-        for regex in REGEXES:
-            for match in regex['regex'].findall( query ):
-                print("\t\t", match)
-                for request in ModRequest.fromQuery( match ):
-                    print("\t\t\t", request)
-                    for result in search( request ):
-                        print("\t\t\t\t", result)
-        input("Press Enter to continue...")
+        for request in ModRequest.fromPost( query ):
+            print('\t\t{!s}'.format( request ))
+            for result in search(request):
+                print("\t\t\t", result)
+        # input("Press Enter to continue...")
 
