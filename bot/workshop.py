@@ -26,6 +26,7 @@ _params = {
     "cache_max_age_seconds": 120, # optional
 
     # stuff we don't use, but the API requires
+    "cursor": "*",
     "return_details": True,
     "strip_description_bbcode": True,
     "page": 1, # required
