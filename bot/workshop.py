@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import sys
 
 from steam import WebAPI
 from common import EPSILON, STEAM, STEAM_WORKSHOP_URL, STEAM_WORKSHOP_PARAMS
@@ -23,16 +24,16 @@ _params = {
     "appid": STEAM_WORKSHOP_PARAMS['appid'], # required
     "creator_appid": STEAM_WORKSHOP_PARAMS['appid'], # required
     "match_all_tags": True, # optional
-    "cache_max_age_seconds": 120, # optional
+    "cache_max_age_seconds": 0, # optional
 
     # stuff we don't use, but the API requires
     "cursor": "*",
     "return_details": True,
     "strip_description_bbcode": True,
-    "page": 1, # required
+    "page": 0, # required
     "child_publishedfileid": "", # required
-    "days": 7, # required
-    "excludedtags": "", # required
+    "days": 999, # required
+    "excludedtags": False, # required
     "filetype": "0", # required
     "ids_only": False, # required
     "include_recent_votes_only": False, # required
@@ -70,7 +71,7 @@ def _findAuthor(mod, authors):
             return author 
     log.error("no author found for mod %s", mod['title'].encode("ascii", "replace"))
 
-def search(query, count = 1, tags = []):
+def search(query, count = 1, tags = [], query_type = 3):
     # allow calling with a ModRequest, as well as directly
     try:
         _params['search_text'] = query.query
@@ -80,9 +81,12 @@ def search(query, count = 1, tags = []):
         _params['search_text'] = query
         _params['numperpage'] = count
         _params['requiredtags'] = tags
-
+        query = ModRequest(True, query, "1.0", count)
+    _params['query_type'] = query_type;    
+    
     # raw response
-    log.debug("search for %s files matching '%s' with tags [%s]", _params['numperpage'], _params['search_text'], ", ".join(_params['requiredtags']))
+    log.info("search for %s files matching '%s' with tags [%s] and query_type '%s'", _params['numperpage'], _params['search_text'], ", ".join(_params['requiredtags']), _params['query_type'])
+    log.info(query.getUrl())
     raw_mods = _api.IPublishedFileService.QueryFiles(**_params)
 
     # get list of mods
@@ -133,71 +137,78 @@ class Mod:
         }
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(module)s :: %(levelname)s :: %(message)s', level=logging.ERROR)
-    print("testing steam API")
-    for mod in search("FluffierThanThou", 10):
-        print("\t" + str(mod))
+    logging.basicConfig(format='%(module)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
-    print("testing query recognition")
-    for query in [
-        'linkmod: ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ, unicode exists.',
-        "linkB18mod: Better",
-        "link [B18] mod: Expanded",
-        "linkA18mod: Extended",
-        "link beta 18 mod: I'm running out of test query ideas",
-        "Link Mod: High Caliber",
-        "there's an alpha 11 mod for that: blurb",
-        "there's mods for that: josephine, peter, jasper",
-        "there's 4 mods for that: josephine, peter, jasper",
-        "there are 20 mods for that: josephine, peter, jasper",
-        "there are mods for that: josephine, peter, jasper",
-        "there are mods for that. Other text.",
-        "You know, there are mods for that: Timmy",
-        "there's A15 mods for that: josephine, peter, jasper",
-        "there's 4 A17 mods for that: josephine, peter, jasper",
-        "there are 20 [A14] mods for that: josephine, peter, jasper",
-        "there are alpha 12 mods for that: josephine, peter, jasper",
-        "there are Alpha 14 mods for that. Other text.",
-        "You know, there are [Alpha 15] mods for that: Timmy",
-        "link4mods: josephine, peter, jasper",
-        "linkmods: josephine, peter, jasper",
-        "link 4 mods: josephine, peter, jasper",
-        "link mods: josephine, peter, jasper",
-        "link4[A15]mods: josephine, peter, jasper.",
-        "link 4 A15 mods josephine, peters, jasper",
-        "linkmod: timmy!",
-        "linkA14mod: ancient mods are the best",
-        "linkscenario: scenarios are for the brave", 
-        "there's a mod for that: timmy!",
-        "there's an A16 mod for that: timmy!",
-        "there's a scenario for that: boris?",
-        "linkmod : Expanded Prosthetics",
-        "linkmod :",
-        "linkmod: Expanded Prosthetics",
-        "linkmod:",
-        "linkmod:Expanded Prosthetics",
-        "linkmod :Expanded Prosthetics",
-        "linkmod:Expanded Prosthetics",
-        "linkmod:",
-        "there are 10 v1.0 mods for that: some text.",
-        "there are 1.0 mods for that: some more text.",
-        "there are version 2.0 scenarios for that: probably not",
-        "link 1.0 mod: awesome sauce!",
-        "link v2.2 mod: totes!",
-        "there's a 1.0 mod for that: Peter",
-        "there's a v1.0 mod for that: Bossman.",
-        "there's a version 1.0 mod for that: Peter",
-        "some text (oh by the way, there's a mod for that: Stuff) some more text",
-        "link 4 v1.0 mods: peter",
-        "link 1.0 mods: tommy!",
-        "linkB18mods: tommy!",
-        "link12B18mods: tommies",
-        "there are multiple requests in this post. link20mods: fluffierthanthou. link20v1.0mods: mod"
-    ]:
-        print("\t" + query)
-        for request in ModRequest.fromPost( query ):
-            print('\t\t{!s}'.format( request ))
-            for result in search(request):
+    if len(sys.argv) > 1:
+        print("looking for: " + sys.argv[1])
+        for qt in range(0, 10):
+            for result in search(sys.argv[1], 5, ["Mod", "1.0"], qt):
                 print("\t\t\t", result)
-        # input("Press Enter to continue...")
+    else:
+        print("testing steam API")
+        for mod in search("Pawns are Capable!", 10):
+            print("\t" + str(mod))
 
+        # print("testing query recognition")
+        # for query in [
+        #     'linkmod: ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ, unicode exists.',
+        #     "linkB18mod: Better",
+        #     "link [B18] mod: Expanded",
+        #     "linkA18mod: Extended",
+        #     "link beta 18 mod: I'm running out of test query ideas",
+        #     "Link Mod: High Caliber",
+        #     "there's an alpha 11 mod for that: blurb",
+        #     "there's mods for that: josephine, peter, jasper",
+        #     "there's 4 mods for that: josephine, peter, jasper",
+        #     "there are 20 mods for that: josephine, peter, jasper",
+        #     "there are mods for that: josephine, peter, jasper",
+        #     "there are mods for that. Other text.",
+        #     "You know, there are mods for that: Timmy",
+        #     "there's A15 mods for that: josephine, peter, jasper",
+        #     "there's 4 A17 mods for that: josephine, peter, jasper",
+        #     "there are 20 [A14] mods for that: josephine, peter, jasper",
+        #     "there are alpha 12 mods for that: josephine, peter, jasper",
+        #     "there are Alpha 14 mods for that. Other text.",
+        #     "You know, there are [Alpha 15] mods for that: Timmy",
+        #     "link4mods: josephine, peter, jasper",
+        #     "linkmods: josephine, peter, jasper",
+        #     "link 4 mods: josephine, peter, jasper",
+        #     "link mods: josephine, peter, jasper",
+        #     "link4[A15]mods: josephine, peter, jasper.",
+        #     "link 4 A15 mods josephine, peters, jasper",
+        #     "linkmod: timmy!",
+        #     "linkA14mod: ancient mods are the best",
+        #     "linkscenario: scenarios are for the brave", 
+        #     "there's a mod for that: timmy!",
+        #     "there's an A16 mod for that: timmy!",
+        #     "there's a scenario for that: boris?",
+        #     "linkmod : Expanded Prosthetics",
+        #     "linkmod :",
+        #     "linkmod: Expanded Prosthetics",
+        #     "linkmod:",
+        #     "linkmod:Expanded Prosthetics",
+        #     "linkmod :Expanded Prosthetics",
+        #     "linkmod:Expanded Prosthetics",
+        #     "linkmod:",
+        #     "there are 10 v1.0 mods for that: some text.",
+        #     "there are 1.0 mods for that: some more text.",
+        #     "there are version 2.0 scenarios for that: probably not",
+        #     "link 1.0 mod: awesome sauce!",
+        #     "link v2.2 mod: totes!",
+        #     "there's a 1.0 mod for that: Peter",
+        #     "there's a v1.0 mod for that: Bossman.",
+        #     "there's a version 1.0 mod for that: Peter",
+        #     "some text (oh by the way, there's a mod for that: Stuff) some more text",
+        #     "link 4 v1.0 mods: peter",
+        #     "link 1.0 mods: tommy!",
+        #     "linkB18mods: tommy!",
+        #     "link12B18mods: tommies",
+        #     "there are multiple requests in this post. link20mods: fluffierthanthou. link20v1.0mods: mod"
+        # ]:
+        #     print("\t" + query)
+        #     for request in ModRequest.fromPost( query ):
+        #         print('\t\t{!s}'.format( request ))
+        #         for result in search(request):
+        #             print("\t\t\t", result)
+        #     # input("Press Enter to continue...")
+    print("bye!")
