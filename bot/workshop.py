@@ -32,7 +32,7 @@ _params = {
     "strip_description_bbcode": True,
     "page": 0, # required
     "child_publishedfileid": "", # required
-    "days": 999, # required
+    "days": False, # required
     "excludedtags": False, # required
     "filetype": "0", # required
     "ids_only": False, # required
