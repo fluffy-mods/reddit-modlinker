@@ -10,7 +10,7 @@ def formatResults(request, mods):
     # prepare info dict
     info = {}
     info['request'] = request
-    info['request_url'] = request.getUrl()
+    info['request_url'] = request.get_url()
     info['count'] = len(mods)
 
     # generate result overview
@@ -32,14 +32,14 @@ def formatMod(mod, tabular=False):
     print_alpha = not mod.nameIncludesVersion()
     if tabular:
         if print_alpha:
-            return '[{alpha}] [{title}]({url}) | by [{authorName}]({authorUrl})\n'.format(**vars(mod))
+            return '[{alpha}] [{title}]({url}) | by [{author}]({profile})\n'.format(**vars(mod))
         else:
-            return '[{title}]({url}) | by [{authorName}]({authorUrl})\n'.format(**vars(mod))
+            return '[{title}]({url}) | by [{author}]({profile})\n'.format(**vars(mod))
     else:
         if print_alpha:
-            return '[{alpha}] [{title}]({url}) by [{authorName}]({authorUrl})\n'.format(**vars(mod))
+            return '[{alpha}] [{title}]({url}) by [{author}]({profile})\n'.format(**vars(mod))
         else:
-            return '[{title}]({url}) by [{authorName}]({authorUrl})\n'.format(**vars(mod))
+            return '[{title}]({url}) by [{author}]({profile})\n'.format(**vars(mod))
 
 def createPosts(parts):
     """

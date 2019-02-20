@@ -8,7 +8,7 @@ from collections import deque
 from commands import ModRequest
 import formatting
 import reddit
-import workshop
+import workshop_scraper as workshop
 import database
 from common import REDDIT
 

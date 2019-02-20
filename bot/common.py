@@ -10,27 +10,28 @@ MAX_LENGTH = 9900 # real max is 10000, leave a bit of wiggle room
 CURRENT_VERSION = environ['RIMWORLD_CURRENT_ALPHA'] # default tag for the current alpha
 EPSILON = 1/1000
 
-# secrets for reddit
+# reddit settings
 REDDIT = {
     "username": environ['REDDIT_USER'],
     "password": environ['REDDIT_PASSWORD'],
     "client_id": environ['REDDIT_CLIENT_ID'],
     "client_secret": environ['REDDIT_CLIENT_SECRET'],
-    "user_agent": 'python:rimworld-modlinker:v1.1 (by /u/FluffierThanThou)',
+    "user_agent": 'python:rimworld-modlinker:v1.2 (by /u/FluffierThanThou)',
     "subreddits": environ['REDDIT_LISTEN_TO']
 }
 
-# secrets for steam
+# steam settings
 STEAM = {
-    "key": environ['STEAM_KEY']
+    "key": environ['STEAM_KEY'],
+    "WORKSHOP": {
+        "search_url": 'http://steamcommunity.com/workshop/browse/?{params}',
+        "mod_url": 'https://steamcommunity.com/sharedfiles/filedetails/?id={id}',
+        "PARAMS": {
+            "appid": 294100,   
+            "browsesort": "textsearch"
+        }
+    }
 }
-
-# only used for creating html links
-STEAM_WORKSHOP_URL = 'http://steamcommunity.com/workshop/browse/?{params}'
-STEAM_WORKSHOP_PARAMS = dict(
-    appid=294100,               # RimWorld
-    browsesort="textsearch"     # Full text (description) search?
-)
 
 # footer text
 FOOTER = ( "\n\n*****\n^(I'm a bot | ) [^source](https://github.com/FluffierThanThou/reddit-modlinker)"
