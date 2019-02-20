@@ -5,7 +5,7 @@ import logging
 import re
 import urllib
 
-from common import CURRENT_VERSION, MAX_RESULTS, STEAM_WORKSHOP_PARAMS, STEAM_WORKSHOP_URL
+from common import CURRENT_VERSION, MAX_RESULTS, STEAM
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class ModRequest:
     '''
     Simple wrapper for search term + count
     '''
-    def __init__(self, mod, query, version, count = 1):
+    def __init__(self, mod, query, version, count=1):
         if isinstance(count, str):
             count = int(count)
         if count > MAX_RESULTS:
@@ -63,11 +63,19 @@ class ModRequest:
         else:
             self.tags.append("Scenario")
 
-    def getUrl(self):
-        params = dict(STEAM_WORKSHOP_PARAMS)
+    def num_per_page(self):
+        if self.count <= 9:
+            return 9
+        if self.count <= 18:
+            return 18
+        return 30
+
+    def get_url(self):
+        params = STEAM['WORKSHOP']['PARAMS'].copy()
         params['requiredtags[]'] = self.tags
         params['searchtext'] = self.query
-        return STEAM_WORKSHOP_URL.format(params = urllib.parse.urlencode(params, True))
+        params['numperpage'] = self.num_per_page()
+        return STEAM['WORKSHOP']['search_url'].format(params = urllib.parse.urlencode(params, True))
 
     @classmethod
     def fromPost(cls, post):
