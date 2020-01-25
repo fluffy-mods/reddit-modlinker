@@ -34,7 +34,8 @@ STEAM = {
 }
 
 # footer text
-FOOTER = ( "\n\n*****\n^(I'm a bot | ) [^source](https://github.com/FluffierThanThou/reddit-modlinker)"
-           " ^| [^commands](https://github.com/FluffierThanThou/reddit-modlinker/blob/master/bot/COMMANDS.MD#link-to-a-mod-or-scenario-for-a-specific-alpha-of-rimworld)"
-           " ^| [^stats](http://modlinker-stats.karel-kroeze.nl/)"
-           " ^(| I was made by )[^/u\/FluffierThanThou](/user/FluffierThanThou)" )
+FOOTER = ("\n\n*****\n"
+          "^I'm&#32;a&#32;bot&#32;|&#32;[source](https://github.com/FluffierThanThou/reddit-modlinker)"
+          "&#32;|&#32;[commands](https://github.com/FluffierThanThou/reddit-modlinker/blob/master/bot/COMMANDS.MD)"
+          "&#32;|&#32;[stats](http://modlinker-stats.karel-kroeze.nl/)"
+          "&#32;|&#32;I&#32;was&#32;made&#32;by&#32;[/u\/FluffierThanThou](/user/FluffierThanThou)")
