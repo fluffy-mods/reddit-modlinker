@@ -84,7 +84,7 @@ class ModRequest:
         for regex in REGEXES_SINGLE:
             for match in regex.finditer(post):
                 data = match.groupdict()
-                requests.append(ModRequest(data['type'] == "mod", data['query'], getTag(data['alpha'], data['version']), 1))
+                requests.append(ModRequest(data['type'].lower() == "mod", data['query'], getTag(data['alpha'], data['version']), 1))
 
         for regex in REGEXES_MULTIPLE:
             for match in regex.finditer( post ):
@@ -94,7 +94,7 @@ class ModRequest:
                 if (data['count']):
                     count = data['count']
                 for query in queries:
-                    requests.append(ModRequest(data['type'] == "mod", query.strip(), getTag(data['alpha'], data['version']), count))
+                    requests.append(ModRequest(data['type'].lower() == "mod", query.strip(), getTag(data['alpha'], data['version']), count))
         
         return requests
 
