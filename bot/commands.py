@@ -16,8 +16,8 @@ REGEXES_SINGLE = [
     # link to a single mod, with a single keyword
     # e.g. `linkmod: Colony Manager` does a steam search for "Colony Manager" and shows the top result
     # returns query, type, alpha?, version?
-    re.compile(r".*?there's an? (?:(?:\[?(?:a|b|alpha|beta) ?(?P<alpha>\d{2})\]?)|(?:(?:version|v)? ?(?P<version>\d\.\d)))? ?(?P<type>mod|scenario) for that: (?P<query>.*?)(?:,|;|:|\.|\)|$)", _regexFlags), # https://regex101.com/r/SzY4cq/2
-    re.compile(r".*?link ?(?:(?:\[?(?:a|b|alpha|beta) ?(?P<alpha>\d{2})\]?)|(?:\[?(?:v|version)? ?(?P<version>\d\.\d)\]?))? ?(?P<type>mod|scenario):? (?P<query>.*?)(?:,|;|:|\.|\)|$)", _regexFlags), # https://regex101.com/r/nzl7di/2
+    re.compile(r".*?there's\san?\s(?:(?:\[?(?:a|b|alpha|beta)\s?(?P<alpha>\d{2})\]?)|(?:(?:version|v)?\s?(?P<version>\d\.\d)))?\s?(?P<type>mod|scenario)\sfor\sthat:\s(?P<query>.*?)(?:,|;|:|\.|\)|$)", _regexFlags), # https://regex101.com/r/SzY4cq/2
+    re.compile(r".*?link\s?(?:(?:\[?(?:a|b|alpha|beta)\s?(?P<alpha>\d{2})\]?)|(?:\[?(?:v|version)?\s?(?P<version>\d\.\d)\]?))?\s?(?P<type>mod|scenario):?\s(?P<query>.*?)(?:,|;|:|\.|\)|$)", _regexFlags), # https://regex101.com/r/nzl7di/2
 ]
 
 REGEXES_MULTIPLE = [
