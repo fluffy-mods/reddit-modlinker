@@ -13,7 +13,7 @@ services:
       - personal
     env_file:
       - bot/secrets.env
-      # - bot/local.env
+      - bot/local.env
   
   stats: 
     build: stats
