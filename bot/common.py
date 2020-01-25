@@ -38,4 +38,7 @@ FOOTER = ("\n\n*****\n"
           "^I'm&#32;a&#32;bot&#32;|&#32;[source](https://github.com/FluffierThanThou/reddit-modlinker)"
           "&#32;|&#32;[commands](https://github.com/FluffierThanThou/reddit-modlinker/blob/master/bot/COMMANDS.MD)"
           "&#32;|&#32;[stats](http://modlinker-stats.karel-kroeze.nl/)"
-          "&#32;|&#32;I&#32;was&#32;made&#32;by&#32;[/u\/FluffierThanThou](/user/FluffierThanThou)")
+          "&#32;|&#32;I&#32;was&#32;made&#32;by&#32;[/u\/FluffierThanThou](/user/FluffierThanThou)"
+          "  \n"
+          "^Did&#32;you&#32;know&#32;my&#32;creator&#32;live&#32;streams&#32;modding?"
+          "&#32;-&#32;[Come&#32;and&#32;say&#32;hi!](https://twitch.tv/fluffierthanthou)")
